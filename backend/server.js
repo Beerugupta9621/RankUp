@@ -1,8 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+
 require("dotenv").config();
 
 const connectDB = require("./config/db");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
@@ -16,7 +18,7 @@ app.get("/", (req, res) => {
         message: "RankUp API is running"
     });
 });
-
+app.use("/api/users", userRoutes);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
