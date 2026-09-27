@@ -5,6 +5,7 @@ import Hero from "./components/Hero";
 import Features from "./components/Features";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 
 
 function LandingPage() {
@@ -192,6 +193,13 @@ function App() {
             <Route
                 path="/login"
                 element={<Login />}
+            />
+
+
+            {/* DASHBOARD */}
+            <Route
+                path="/dashboard"
+                element={<Dashboard />}
             />
 
         </Routes>
