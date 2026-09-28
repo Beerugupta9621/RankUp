@@ -6,6 +6,7 @@ import Features from "./components/Features";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Problems from "./pages/Problems";
 
 
 function LandingPage() {
@@ -174,34 +175,12 @@ function App() {
 
     return (
         <Routes>
-
-            {/* LANDING PAGE */}
-            <Route
-                path="/"
-                element={<LandingPage />}
-            />
-
-
-            {/* REGISTER */}
-            <Route
-                path="/register"
-                element={<Register />}
-            />
-
-
-            {/* LOGIN */}
-            <Route
-                path="/login"
-                element={<Login />}
-            />
-
-
-            {/* DASHBOARD */}
-            <Route
-                path="/dashboard"
-                element={<Dashboard />}
-            />
-
+           <Route path="/" element={<LandingPage />} />
+            <Route path="/register" element={<Register />} />
+             <Route path="/login" element={<Login />} />
+               <Route path="/dashboard" element={<Dashboard />} />
+               <Route path="/problems" element={<Problems />} />
+            
         </Routes>
     );
 }

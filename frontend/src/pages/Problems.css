@@ -1,0 +1,278 @@
+.problems-page {
+    min-height: 100vh;
+    background:
+        radial-gradient(
+            circle at 50% -20%,
+            rgba(124, 58, 237, 0.18),
+            transparent 40%
+        ),
+        #05060b;
+    color: #f8fafc;
+}
+
+.problems-nav {
+    height: 75px;
+    padding: 0 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(20px);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.problems-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 21px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.problems-logo-icon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: linear-gradient(
+        135deg,
+        #7c3aed,
+        #5b21b6
+    );
+
+    box-shadow:
+        0 0 25px rgba(124, 58, 237, 0.35);
+}
+
+.back-btn {
+    padding: 9px 17px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.04);
+    color: #e5e7eb;
+
+    cursor: pointer;
+}
+
+.back-btn:hover {
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.problems-main {
+    max-width: 1100px;
+    margin: auto;
+    padding: 60px 24px;
+}
+
+.problems-label {
+    color: #8b5cf6;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.problems-header h1 {
+    margin: 10px 0 0;
+
+    font-size: clamp(40px, 6vw, 60px);
+    line-height: 1.05;
+}
+
+.problems-header h1 span {
+    color: #8b5cf6;
+}
+
+.problems-header p {
+    margin-top: 15px;
+
+    color: #9ca3af;
+    font-size: 16px;
+}
+
+.problem-filters {
+    margin-top: 45px;
+
+    display: flex;
+    gap: 15px;
+}
+
+.problem-filters input,
+.problem-filters select {
+    padding: 13px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.04);
+    color: white;
+
+    outline: none;
+}
+
+.problem-filters input {
+    flex: 1;
+}
+
+.problem-filters input:focus,
+.problem-filters select:focus {
+    border-color: rgba(139, 92, 246, 0.7);
+}
+
+.problem-filters select {
+    min-width: 190px;
+}
+
+.problem-filters option {
+    background: #111827;
+}
+
+.problem-list {
+    margin-top: 25px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.problem-card {
+    display: grid;
+    grid-template-columns: 45px 1fr auto 30px;
+    align-items: center;
+    gap: 15px;
+
+    padding: 20px;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.035);
+    backdrop-filter: blur(15px);
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.problem-card:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(139, 92, 246, 0.45);
+    background: rgba(124, 58, 237, 0.06);
+}
+
+.problem-number {
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.problem-info h2 {
+    margin: 0;
+
+    font-size: 18px;
+}
+
+.problem-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+
+    margin-top: 8px;
+}
+
+.problem-tags span {
+    padding: 4px 8px;
+
+    border-radius: 6px;
+
+    background: rgba(139, 92, 246, 0.1);
+    color: #a78bfa;
+
+    font-size: 12px;
+}
+
+.difficulty {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.difficulty.easy {
+    color: #4ade80;
+}
+
+.difficulty.medium {
+    color: #facc15;
+}
+
+.difficulty.hard {
+    color: #f87171;
+}
+
+.problem-arrow {
+    color: #6b7280;
+    font-size: 20px;
+}
+
+.problem-card:hover .problem-arrow {
+    color: #a78bfa;
+}
+
+.problems-loading,
+.empty-problems {
+    margin-top: 30px;
+    padding: 60px 20px;
+
+    text-align: center;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.empty-icon {
+    font-size: 35px;
+}
+
+.empty-problems h2 {
+    margin-top: 15px;
+}
+
+.empty-problems p {
+    margin-top: 8px;
+    color: #9ca3af;
+}
+
+@media (max-width: 700px) {
+    .problems-nav {
+        padding: 0 18px;
+    }
+
+    .problems-main {
+        padding: 40px 18px;
+    }
+
+    .problem-filters {
+        flex-direction: column;
+    }
+
+    .problem-filters select {
+        width: 100%;
+    }
+
+    .problem-card {
+        grid-template-columns: 30px 1fr auto;
+    }
+
+    .problem-arrow {
+        display: none;
+    }
+}
