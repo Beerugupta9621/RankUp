@@ -3,10 +3,12 @@ import { Routes, Route, Link } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import Features from "./components/Features";
+
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Problems from "./pages/Problems";
+import ProblemDetails from "./pages/ProblemDetails";
 
 
 function LandingPage() {
@@ -21,11 +23,13 @@ function LandingPage() {
 
                 <Features />
 
+
                 {/* HOW IT WORKS */}
                 <section
                     className="how-section"
                     id="how-it-works"
                 >
+
                     <div className="section-heading">
 
                         <span>
@@ -35,6 +39,7 @@ function LandingPage() {
                         <h2>
                             Practice.
                             <br />
+
                             <strong>
                                 Compete. Improve.
                             </strong>
@@ -120,6 +125,7 @@ function LandingPage() {
                         <h2>
                             Your next rating
                             <br />
+
                             <strong>
                                 starts here.
                             </strong>
@@ -175,12 +181,42 @@ function App() {
 
     return (
         <Routes>
-           <Route path="/" element={<LandingPage />} />
-            <Route path="/register" element={<Register />} />
-             <Route path="/login" element={<Login />} />
-               <Route path="/dashboard" element={<Dashboard />} />
-               <Route path="/problems" element={<Problems />} />
-            
+
+            {/* Landing Page */}
+            <Route
+                path="/"
+                element={<LandingPage />}
+            />
+
+            {/* Authentication */}
+            <Route
+                path="/register"
+                element={<Register />}
+            />
+
+            <Route
+                path="/login"
+                element={<Login />}
+            />
+
+            {/* Dashboard */}
+            <Route
+                path="/dashboard"
+                element={<Dashboard />}
+            />
+
+            {/* Problems */}
+            <Route
+                path="/problems"
+                element={<Problems />}
+            />
+
+            {/* Problem Details */}
+            <Route
+                path="/problems/:id"
+                element={<ProblemDetails />}
+            />
+
         </Routes>
     );
 }
