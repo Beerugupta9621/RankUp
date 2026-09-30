@@ -10,7 +10,10 @@ function ProblemDetails() {
 
     const [problem, setProblem] = useState(null);
     const [loading, setLoading] = useState(true);
+
     const [code, setCode] = useState("");
+    const [running, setRunning] = useState(false);
+    const [output, setOutput] = useState("");
 
     useEffect(() => {
         const fetchProblem = async () => {
@@ -34,14 +37,25 @@ function ProblemDetails() {
                 const data = response.data.problem;
 
                 setProblem(data);
-                setCode(data.starterCode?.cpp || "");
+
+                setCode(
+                    data.starterCode?.cpp || ""
+                );
 
             } catch (error) {
-                console.error("Problem error:", error);
+                console.error(
+                    "Problem error:",
+                    error
+                );
 
                 if (error.response?.status === 401) {
-                    localStorage.removeItem("accessToken");
-                    localStorage.removeItem("user");
+                    localStorage.removeItem(
+                        "accessToken"
+                    );
+
+                    localStorage.removeItem(
+                        "user"
+                    );
 
                     navigate("/login");
                 }
@@ -54,6 +68,99 @@ function ProblemDetails() {
         fetchProblem();
 
     }, [id, navigate]);
+
+
+    const handleRunCode = async () => {
+        const token =
+            localStorage.getItem("accessToken");
+
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
+        if (!code.trim()) {
+            setOutput(
+                "Please write some code first."
+            );
+            return;
+        }
+
+        setRunning(true);
+        setOutput("Running code...");
+
+        try {
+            const response = await api.post(
+                "/submissions/run",
+                {
+                    sourceCode: code,
+                    languageId: 54,
+                    stdin: ""
+                },
+                {
+                    headers: {
+                        Authorization:
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+            const result =
+                response.data.result;
+
+            if (result.stdout) {
+                setOutput(
+                    result.stdout
+                );
+
+            } else if (result.stderr) {
+                setOutput(
+                    result.stderr
+                );
+
+            } else if (result.compile_output) {
+                setOutput(
+                    result.compile_output
+                );
+
+            } else {
+                setOutput(
+                    result.status?.description ||
+                    "Execution completed."
+                );
+            }
+
+        } catch (error) {
+            console.error(
+                "Run code error:",
+                error
+            );
+
+            if (
+                error.response?.status === 401
+            ) {
+                localStorage.removeItem(
+                    "accessToken"
+                );
+
+                localStorage.removeItem(
+                    "user"
+                );
+
+                navigate("/login");
+
+                return;
+            }
+
+            setOutput(
+                error.response?.data?.message ||
+                "Code execution failed."
+            );
+
+        } finally {
+            setRunning(false);
+        }
+    };
 
 
     if (loading) {
@@ -69,10 +176,14 @@ function ProblemDetails() {
         return (
             <div className="problem-details-loading">
 
-                <h2>Problem not found</h2>
+                <h2>
+                    Problem not found
+                </h2>
 
                 <button
-                    onClick={() => navigate("/problems")}
+                    onClick={() =>
+                        navigate("/problems")
+                    }
                 >
                     ← Back to Problems
                 </button>
@@ -85,22 +196,33 @@ function ProblemDetails() {
     return (
         <div className="problem-details-page">
 
+            {/* NAVBAR */}
+
             <nav className="problem-details-nav">
 
                 <div
                     className="problem-details-logo"
-                    onClick={() => navigate("/dashboard")}
+                    onClick={() =>
+                        navigate("/dashboard")
+                    }
                 >
+
                     <div className="problem-details-logo-icon">
                         R
                     </div>
 
-                    <span>RankUp</span>
+                    <span>
+                        RankUp
+                    </span>
+
                 </div>
+
 
                 <button
                     className="problem-back-btn"
-                    onClick={() => navigate("/problems")}
+                    onClick={() =>
+                        navigate("/problems")
+                    }
                 >
                     ← Problems
                 </button>
@@ -108,9 +230,12 @@ function ProblemDetails() {
             </nav>
 
 
+            {/* WORKSPACE */}
+
             <main className="problem-workspace">
 
-                {/* PROBLEM */}
+                {/* LEFT SIDE */}
+
                 <section className="problem-panel">
 
                     <div className="problem-title-section">
@@ -119,11 +244,13 @@ function ProblemDetails() {
                             PROBLEM
                         </div>
 
+
                         <div className="problem-title-row">
 
                             <h1>
                                 {problem.title}
                             </h1>
+
 
                             <span
                                 className={
@@ -139,11 +266,13 @@ function ProblemDetails() {
 
                         <div className="problem-detail-tags">
 
-                            {problem.tags?.map((tag) => (
-                                <span key={tag}>
-                                    {tag}
-                                </span>
-                            ))}
+                            {problem.tags?.map(
+                                (tag) => (
+                                    <span key={tag}>
+                                        {tag}
+                                    </span>
+                                )
+                            )}
 
                         </div>
 
@@ -151,6 +280,8 @@ function ProblemDetails() {
 
 
                     <div className="problem-content">
+
+                        {/* DESCRIPTION */}
 
                         <section className="problem-section">
 
@@ -165,6 +296,8 @@ function ProblemDetails() {
                         </section>
 
 
+                        {/* EXAMPLES */}
+
                         {problem.examples?.length > 0 && (
 
                             <section className="problem-section">
@@ -172,6 +305,7 @@ function ProblemDetails() {
                                 <h2>
                                     Examples
                                 </h2>
+
 
                                 {problem.examples.map(
                                     (example, index) => (
@@ -182,26 +316,36 @@ function ProblemDetails() {
                                         >
 
                                             <strong>
-                                                Example {index + 1}
+                                                Example{" "}
+                                                {index + 1}
                                             </strong>
 
+
                                             <p>
-                                                <b>Input:</b>{" "}
+                                                <b>
+                                                    Input:
+                                                </b>{" "}
                                                 {example.input}
                                             </p>
 
+
                                             <p>
-                                                <b>Output:</b>{" "}
+                                                <b>
+                                                    Output:
+                                                </b>{" "}
                                                 {example.output}
                                             </p>
 
+
                                             {example.explanation && (
+
                                                 <p>
                                                     <b>
                                                         Explanation:
                                                     </b>{" "}
                                                     {example.explanation}
                                                 </p>
+
                                             )}
 
                                         </div>
@@ -214,6 +358,8 @@ function ProblemDetails() {
                         )}
 
 
+                        {/* CONSTRAINTS */}
+
                         {problem.constraints?.length > 0 && (
 
                             <section className="problem-section">
@@ -222,13 +368,16 @@ function ProblemDetails() {
                                     Constraints
                                 </h2>
 
+
                                 <ul>
 
                                     {problem.constraints.map(
                                         (constraint, index) => (
+
                                             <li key={index}>
                                                 {constraint}
                                             </li>
+
                                         )
                                     )}
 
@@ -243,8 +392,11 @@ function ProblemDetails() {
                 </section>
 
 
-                {/* CODE EDITOR */}
+                {/* RIGHT SIDE */}
+
                 <section className="editor-panel">
+
+                    {/* EDITOR HEADER */}
 
                     <div className="editor-header">
 
@@ -252,28 +404,49 @@ function ProblemDetails() {
                             C++ Editor
                         </span>
 
+
                         <button
                             className="run-button"
-                            onClick={() => {
-                                alert(
-                                    "Code execution will be added next."
-                                );
-                            }}
+                            onClick={handleRunCode}
+                            disabled={running}
                         >
-                            Run Code
+                            {running
+                                ? "Running..."
+                                : "Run Code"}
                         </button>
 
                     </div>
 
 
+                    {/* CODE EDITOR */}
+
                     <textarea
                         className="code-editor"
                         value={code}
                         onChange={(e) =>
-                            setCode(e.target.value)
+                            setCode(
+                                e.target.value
+                            )
                         }
                         spellCheck="false"
                     />
+
+
+                    {/* OUTPUT */}
+
+                    <div className="output-panel">
+
+                        <div className="output-title">
+                            Output
+                        </div>
+
+
+                        <pre>
+                            {output ||
+                                "Run your code to see the output here."}
+                        </pre>
+
+                    </div>
 
                 </section>
 
