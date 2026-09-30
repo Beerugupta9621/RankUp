@@ -13,11 +13,19 @@ function ProblemDetails() {
 
     const [code, setCode] = useState("");
     const [running, setRunning] = useState(false);
-    const [output, setOutput] = useState("");
+    const [submitting, setSubmitting] = useState(false);
 
+    const [output, setOutput] = useState("");
+    const [verdict, setVerdict] = useState("");
+
+
+    // FETCH PROBLEM
     useEffect(() => {
+
         const fetchProblem = async () => {
-            const token = localStorage.getItem("accessToken");
+
+            const token =
+                localStorage.getItem("accessToken");
 
             if (!token) {
                 navigate("/login");
@@ -25,16 +33,19 @@ function ProblemDetails() {
             }
 
             try {
+
                 const response = await api.get(
                     `/problems/${id}`,
                     {
                         headers: {
-                            Authorization: `Bearer ${token}`
+                            Authorization:
+                                `Bearer ${token}`
                         }
                     }
                 );
 
-                const data = response.data.problem;
+                const data =
+                    response.data.problem;
 
                 setProblem(data);
 
@@ -43,12 +54,16 @@ function ProblemDetails() {
                 );
 
             } catch (error) {
+
                 console.error(
                     "Problem error:",
                     error
                 );
 
-                if (error.response?.status === 401) {
+                if (
+                    error.response?.status === 401
+                ) {
+
                     localStorage.removeItem(
                         "accessToken"
                     );
@@ -61,7 +76,9 @@ function ProblemDetails() {
                 }
 
             } finally {
+
                 setLoading(false);
+
             }
         };
 
@@ -70,7 +87,9 @@ function ProblemDetails() {
     }, [id, navigate]);
 
 
+    // RUN CODE
     const handleRunCode = async () => {
+
         const token =
             localStorage.getItem("accessToken");
 
@@ -80,16 +99,20 @@ function ProblemDetails() {
         }
 
         if (!code.trim()) {
+
             setOutput(
                 "Please write some code first."
             );
+
             return;
         }
 
         setRunning(true);
         setOutput("Running code...");
+        setVerdict("");
 
         try {
+
             const response = await api.post(
                 "/submissions/run",
                 {
@@ -108,29 +131,36 @@ function ProblemDetails() {
             const result =
                 response.data.result;
 
+
             if (result.stdout) {
+
                 setOutput(
                     result.stdout
                 );
 
             } else if (result.stderr) {
+
                 setOutput(
                     result.stderr
                 );
 
             } else if (result.compile_output) {
+
                 setOutput(
                     result.compile_output
                 );
 
             } else {
+
                 setOutput(
                     result.status?.description ||
                     "Execution completed."
                 );
+
             }
 
         } catch (error) {
+
             console.error(
                 "Run code error:",
                 error
@@ -139,6 +169,7 @@ function ProblemDetails() {
             if (
                 error.response?.status === 401
             ) {
+
                 localStorage.removeItem(
                     "accessToken"
                 );
@@ -158,21 +189,131 @@ function ProblemDetails() {
             );
 
         } finally {
+
             setRunning(false);
+
         }
     };
 
 
+    // SUBMIT CODE
+    const handleSubmit = async () => {
+
+        const token =
+            localStorage.getItem("accessToken");
+
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+
+        if (!code.trim()) {
+
+            setVerdict(
+                "Please write some code first."
+            );
+
+            return;
+        }
+
+        setSubmitting(true);
+
+        setVerdict("");
+
+        setOutput(
+            "Submitting code..."
+        );
+
+        try {
+
+            const response = await api.post(
+                "/submissions/submit",
+                {
+                    problemId: id,
+                    sourceCode: code,
+                    languageId: 54,
+                    language: "cpp",
+                    stdin: ""
+                },
+                {
+                    headers: {
+                        Authorization:
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+            const submission =
+                response.data.submission;
+
+
+            setVerdict(
+                submission.status ||
+                "Unknown"
+            );
+
+
+            setOutput(
+                submission.stdout ||
+                submission.stderr ||
+                submission.compileOutput ||
+                "No output"
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Submission error:",
+                error
+            );
+
+            if (
+                error.response?.status === 401
+            ) {
+
+                localStorage.removeItem(
+                    "accessToken"
+                );
+
+                localStorage.removeItem(
+                    "user"
+                );
+
+                navigate("/login");
+
+                return;
+            }
+
+            setVerdict(
+                error.response?.data?.message ||
+                "Submission failed."
+            );
+
+        } finally {
+
+            setSubmitting(false);
+
+        }
+    };
+
+
+    // LOADING
     if (loading) {
+
         return (
             <div className="problem-details-loading">
+
                 Loading problem...
+
             </div>
         );
+
     }
 
 
+    // PROBLEM NOT FOUND
     if (!problem) {
+
         return (
             <div className="problem-details-loading">
 
@@ -190,11 +331,13 @@ function ProblemDetails() {
 
             </div>
         );
+
     }
 
 
     return (
         <div className="problem-details-page">
+
 
             {/* NAVBAR */}
 
@@ -230,13 +373,16 @@ function ProblemDetails() {
             </nav>
 
 
+
             {/* WORKSPACE */}
 
             <main className="problem-workspace">
 
+
                 {/* LEFT SIDE */}
 
                 <section className="problem-panel">
+
 
                     <div className="problem-title-section">
 
@@ -268,9 +414,11 @@ function ProblemDetails() {
 
                             {problem.tags?.map(
                                 (tag) => (
+
                                     <span key={tag}>
                                         {tag}
                                     </span>
+
                                 )
                             )}
 
@@ -279,7 +427,9 @@ function ProblemDetails() {
                     </div>
 
 
+
                     <div className="problem-content">
+
 
                         {/* DESCRIPTION */}
 
@@ -294,6 +444,7 @@ function ProblemDetails() {
                             </p>
 
                         </section>
+
 
 
                         {/* EXAMPLES */}
@@ -322,28 +473,37 @@ function ProblemDetails() {
 
 
                                             <p>
+
                                                 <b>
                                                     Input:
                                                 </b>{" "}
+
                                                 {example.input}
+
                                             </p>
 
 
                                             <p>
+
                                                 <b>
                                                     Output:
                                                 </b>{" "}
+
                                                 {example.output}
+
                                             </p>
 
 
                                             {example.explanation && (
 
                                                 <p>
+
                                                     <b>
                                                         Explanation:
                                                     </b>{" "}
+
                                                     {example.explanation}
+
                                                 </p>
 
                                             )}
@@ -356,6 +516,7 @@ function ProblemDetails() {
                             </section>
 
                         )}
+
 
 
                         {/* CONSTRAINTS */}
@@ -392,9 +553,11 @@ function ProblemDetails() {
                 </section>
 
 
-                {/* RIGHT SIDE */}
+
+                {/* RIGHT SIDE - EDITOR */}
 
                 <section className="editor-panel">
+
 
                     {/* EDITOR HEADER */}
 
@@ -405,17 +568,45 @@ function ProblemDetails() {
                         </span>
 
 
-                        <button
-                            className="run-button"
-                            onClick={handleRunCode}
-                            disabled={running}
-                        >
-                            {running
-                                ? "Running..."
-                                : "Run Code"}
-                        </button>
+                        <div className="editor-actions">
+
+
+                            <button
+                                className="run-button"
+                                onClick={handleRunCode}
+                                disabled={
+                                    running ||
+                                    submitting
+                                }
+                            >
+
+                                {running
+                                    ? "Running..."
+                                    : "Run Code"}
+
+                            </button>
+
+
+                            <button
+                                className="submit-button"
+                                onClick={handleSubmit}
+                                disabled={
+                                    running ||
+                                    submitting
+                                }
+                            >
+
+                                {submitting
+                                    ? "Submitting..."
+                                    : "Submit"}
+
+                            </button>
+
+
+                        </div>
 
                     </div>
+
 
 
                     {/* CODE EDITOR */}
@@ -432,6 +623,7 @@ function ProblemDetails() {
                     />
 
 
+
                     {/* OUTPUT */}
 
                     <div className="output-panel">
@@ -439,6 +631,17 @@ function ProblemDetails() {
                         <div className="output-title">
                             Output
                         </div>
+
+
+                        {verdict && (
+
+                            <div className="verdict">
+
+                                Verdict: {verdict}
+
+                            </div>
+
+                        )}
 
 
                         <pre>

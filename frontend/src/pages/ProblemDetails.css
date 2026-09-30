@@ -330,3 +330,38 @@
     cursor: not-allowed;
 }
 
+.editor-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.submit-button {
+    padding: 8px 16px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #16a34a;
+    color: white;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background: #15803d;
+}
+
+.submit-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.verdict {
+    margin-bottom: 10px;
+
+    font-weight: 700;
+
+    color: #4ade80;
+}
