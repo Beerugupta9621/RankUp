@@ -245,11 +245,15 @@ function SubmissionHistory() {
                                 {submissions.map(
                                     (submission) => (
 
-                                        <tr
-                                            key={
-                                                submission._id
-                                            }
-                                        >
+                                    <tr
+                                        key={submission._id}
+                                         onClick={() =>
+                                           navigate(
+                                        `/submissions/${submission._id}`
+                                                )
+                                               }
+                                              className="submission-row"
+                                                   >    
 
                                             <td className="problem-name">
 

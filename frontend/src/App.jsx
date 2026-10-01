@@ -10,7 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Problems from "./pages/Problems";
 import ProblemDetails from "./pages/ProblemDetails";
 import SubmissionHistory from "./pages/SubmissionHistory";
-
+import SubmissionDetails from "./pages/SubmissionDetails";
 function LandingPage() {
     return (
         <div className="app">
@@ -217,9 +217,13 @@ function App() {
                 element={<ProblemDetails />}
             />
             <Route
-    path="/submissions"
-    element={<SubmissionHistory />}
-/>
+              path="/submissions"
+                  element={<SubmissionHistory />}
+                />
+            <Route
+             path="/submissions/:id"
+              element={<SubmissionDetails />}
+                />
 
         </Routes>
     );

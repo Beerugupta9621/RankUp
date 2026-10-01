@@ -285,3 +285,10 @@
     }
 
 }
+.submission-row {
+    cursor: pointer;
+}
+
+.submission-row:hover {
+    background: rgba(124, 58, 237, 0.08);
+}
