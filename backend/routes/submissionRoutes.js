@@ -154,6 +154,36 @@ router.post("/submit", protect, async (req, res) => {
 
     }
 });
+// GET SUBMISSION HISTORY
+router.get("/history", protect, async (req, res) => {
+    try {
+        const submissions = await Submission.find({
+            user: req.user.id
+        })
+            .populate("problem", "title difficulty")
+            .select(
+                "problem language status executionTime memory createdAt sourceCode"
+            )
+            .sort({
+                createdAt: -1
+            });
 
+        res.status(200).json({
+            submissions
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Submission history error:",
+            error.message
+        );
+
+        res.status(500).json({
+            message:
+                "Failed to fetch submission history"
+        });
+    }
+});
 
 module.exports = router;
