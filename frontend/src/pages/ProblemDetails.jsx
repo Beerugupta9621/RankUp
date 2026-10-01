@@ -114,12 +114,12 @@ function ProblemDetails() {
         try {
 
             const response = await api.post(
-                "/submissions/run",
-                {
-                    sourceCode: code,
-                    languageId: 54,
-                    stdin: ""
-                },
+    "/submissions/run",
+    {
+        sourceCode: code,
+        languageId: 54,
+        stdin: problem.testCases?.[0]?.input || ""
+    },
                 {
                     headers: {
                         Authorization:

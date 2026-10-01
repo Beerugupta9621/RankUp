@@ -2,6 +2,8 @@ const express = require("express");
 
 const protect = require("../middleware/authMiddleware");
 const Submission = require("../models/Submission");
+const User = require("../models/User");
+const Problem = require("../models/Problem");
 const { runCode } = require("../services/judgeService");
 
 const router = express.Router();
@@ -55,16 +57,15 @@ router.post("/run", protect, async (req, res) => {
 
 // SUBMIT CODE
 router.post("/submit", protect, async (req, res) => {
+
     try {
 
         const {
             problemId,
             sourceCode,
             languageId,
-            language,
-            stdin
+            language
         } = req.body;
-
 
         if (!problemId) {
             return res.status(400).json({
@@ -72,13 +73,11 @@ router.post("/submit", protect, async (req, res) => {
             });
         }
 
-
         if (!sourceCode) {
             return res.status(400).json({
                 message: "Source code is required"
             });
         }
-
 
         if (!languageId) {
             return res.status(400).json({
@@ -86,13 +85,116 @@ router.post("/submit", protect, async (req, res) => {
             });
         }
 
+        const problem =
+            await Problem.findById(problemId);
 
-        const result = await runCode(
-            sourceCode,
-            languageId,
-            stdin || ""
-        );
+        if (!problem) {
+            return res.status(404).json({
+                message: "Problem not found"
+            });
+        }
 
+        if (
+            !problem.testCases ||
+            problem.testCases.length === 0
+        ) {
+            return res.status(400).json({
+                message: "This problem has no test cases"
+            });
+        }
+
+        let finalStatus = "Accepted";
+
+        let finalStdout = "";
+        let finalStderr = "";
+        let finalCompileOutput = "";
+        let finalTime = "";
+        let finalMemory = 0;
+
+        for (const testCase of problem.testCases) {
+
+            console.log(
+                "Testing input:",
+                testCase.input
+            );
+
+            console.log(
+                "Expected output:",
+                testCase.output
+            );
+
+            const result = await runCode(
+                sourceCode,
+                languageId,
+                testCase.input || ""
+            );
+
+            finalStdout =
+                result.stdout || "";
+
+            finalStderr =
+                result.stderr || "";
+
+            finalCompileOutput =
+                result.compile_output || "";
+
+            finalTime =
+                result.time || "";
+
+            finalMemory =
+                result.memory || 0;
+
+            console.log(
+                "Judge output:",
+                result.stdout
+            );
+
+            if (result.compile_output) {
+
+                finalStatus =
+                    "Compilation Error";
+
+                break;
+            }
+
+            if (result.stderr) {
+
+                finalStatus =
+                    "Runtime Error";
+
+                break;
+            }
+
+            const actual =
+                (result.stdout || "")
+                    .trim()
+                    .split(/\s+/)
+                    .join(" ");
+
+            const expected =
+                (testCase.output || "")
+                    .trim()
+                    .split(/\s+/)
+                    .join(" ");
+
+            console.log(
+                "Actual:",
+                actual
+            );
+
+            console.log(
+                "Expected:",
+                expected
+            );
+
+            if (actual !== expected) {
+
+                finalStatus =
+                    "Wrong Answer";
+
+                break;
+            }
+        }
 
         const submission =
             await Submission.create({
@@ -103,40 +205,57 @@ router.post("/submit", protect, async (req, res) => {
 
                 sourceCode: sourceCode,
 
-                language: language || "cpp",
+                language:
+                    language || "cpp",
 
                 languageId: languageId,
 
-                stdin: stdin || "",
+                stdout: finalStdout,
 
-                stdout: result.stdout || "",
-
-                stderr: result.stderr || "",
+                stderr: finalStderr,
 
                 compileOutput:
-                    result.compile_output || "",
+                    finalCompileOutput,
 
-                status:
-                    result.status?.description ||
-                    "Unknown",
+                status: finalStatus,
 
                 executionTime:
-                    result.time || "",
+                    finalTime,
 
                 memory:
-                    result.memory || 0
+                    finalMemory
             });
 
+        if (finalStatus === "Accepted") {
+
+            const previousAccepted =
+                await Submission.findOne({
+                    user: req.user.id,
+                    problem: problemId,
+                    status: "Accepted",
+                    _id: {
+                        $ne: submission._id
+                    }
+                });
+
+            if (!previousAccepted) {
+
+                await User.findByIdAndUpdate(
+                    req.user.id,
+                    {
+                        $inc: {
+                            problemsSolved: 1
+                        }
+                    }
+                );
+            }
+        }
 
         res.status(201).json({
-
             message:
-                "Submission created successfully",
-
+                "Submission evaluated successfully",
             submission
-
         });
-
 
     } catch (error) {
 
@@ -146,12 +265,8 @@ router.post("/submit", protect, async (req, res) => {
         );
 
         res.status(500).json({
-
-            message:
-                "Submission failed"
-
+            message: "Submission failed"
         });
-
     }
 });
 // GET SUBMISSION HISTORY
