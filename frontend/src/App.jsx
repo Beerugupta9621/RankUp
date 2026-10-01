@@ -9,7 +9,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Problems from "./pages/Problems";
 import ProblemDetails from "./pages/ProblemDetails";
-
+import SubmissionHistory from "./pages/SubmissionHistory";
 
 function LandingPage() {
     return (
@@ -216,6 +216,10 @@ function App() {
                 path="/problems/:id"
                 element={<ProblemDetails />}
             />
+            <Route
+    path="/submissions"
+    element={<SubmissionHistory />}
+/>
 
         </Routes>
     );
