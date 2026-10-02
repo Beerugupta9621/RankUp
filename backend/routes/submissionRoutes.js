@@ -301,6 +301,40 @@ router.get("/history", protect, async (req, res) => {
     }
 });
 
+/* GET SOLVED PROBLEMS */
+/* GET SOLVED PROBLEMS */
+router.get("/solved", protect, async (req, res) => {
+    try {
+        const solvedSubmissions = await Submission.find({
+            user: req.user.id,
+            status: {
+                $regex: /^Accepted$/i
+            }
+        }).select("problem");
+
+        const solvedProblems = [
+            ...new Set(
+                solvedSubmissions.map(
+                    (submission) => submission.problem.toString()
+                )
+            )
+        ];
+
+        res.status(200).json({
+            solvedProblems
+        });
+
+    } catch (error) {
+        console.error(
+            "Get solved problems error:",
+            error.message
+        );
+
+        res.status(500).json({
+            message: "Server error while fetching solved problems"
+        });
+    }
+});
 // GET SINGLE SUBMISSION
 router.get("/:id", protect, async (req, res) => {
     try {

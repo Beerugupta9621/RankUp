@@ -5,7 +5,6 @@ import api from "../services/api";
 import "./Problems.css";
 
 function Problems() {
-
     const navigate = useNavigate();
 
     const [problems, setProblems] = useState([]);
@@ -15,11 +14,10 @@ function Problems() {
     const [difficulty, setDifficulty] = useState("All");
     const [tag, setTag] = useState("All");
 
+    const [solvedProblems, setSolvedProblems] = useState([]);
 
     useEffect(() => {
-
         const fetchProblems = async () => {
-
             const token =
                 localStorage.getItem("accessToken");
 
@@ -29,6 +27,7 @@ function Problems() {
             }
 
             try {
+                /* GET ALL PROBLEMS */
 
                 const response = await api.get(
                     "/problems",
@@ -44,8 +43,24 @@ function Problems() {
                     response.data.problems || []
                 );
 
-            } catch (error) {
 
+                /* GET SOLVED PROBLEMS */
+
+                const solvedResponse = await api.get(
+                    "/submissions/solved",
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        }
+                    }
+                );
+
+                setSolvedProblems(
+                    solvedResponse.data.solvedProblems || []
+                );
+
+            } catch (error) {
                 console.error(
                     "Problems error:",
                     error
@@ -54,7 +69,6 @@ function Problems() {
                 if (
                     error.response?.status === 401
                 ) {
-
                     localStorage.removeItem(
                         "accessToken"
                     );
@@ -67,9 +81,7 @@ function Problems() {
                 }
 
             } finally {
-
                 setLoading(false);
-
             }
         };
 
@@ -78,7 +90,7 @@ function Problems() {
     }, [navigate]);
 
 
-    // GET UNIQUE TAGS FROM ALL PROBLEMS
+    /* GET UNIQUE TAGS FROM ALL PROBLEMS */
 
     const allTags = [
         ...new Set(
@@ -90,7 +102,7 @@ function Problems() {
     ];
 
 
-    // SEARCH + DIFFICULTY + TAG FILTER
+    /* SEARCH + DIFFICULTY + TAG FILTER */
 
     const filteredProblems =
         problems.filter((problem) => {
@@ -115,12 +127,13 @@ function Problems() {
                 matchesDifficulty &&
                 matchesTag
             );
-
         });
 
 
     return (
         <div className="problems-page">
+
+            {/* NAVBAR */}
 
             <nav className="problems-nav">
 
@@ -155,6 +168,8 @@ function Problems() {
 
 
             <main className="problems-main">
+
+                {/* HEADER */}
 
                 <div className="problems-header">
 
@@ -253,18 +268,32 @@ function Problems() {
                     </select>
 
                 </div>
-                <div className="problems-result-info">
-    <span>
-        {problems.length}{" "}
-        {problems.length === 1 ? "Problem" : "Problems"}
-    </span>
 
-    <span>
-        Showing {filteredProblems.length} of{" "}
-        {problems.length}{" "}
-        {problems.length === 1 ? "problem" : "problems"}
-    </span>
-</div>
+
+                {/* RESULT COUNT */}
+
+                <div className="problems-result-info">
+
+                    <span>
+                        {problems.length}{" "}
+                        {
+                            problems.length === 1
+                                ? "Problem"
+                                : "Problems"
+                        }
+                    </span>
+
+                    <span>
+                        Showing {filteredProblems.length} of{" "}
+                        {problems.length}{" "}
+                        {
+                            problems.length === 1
+                                ? "problem"
+                                : "problems"
+                        }
+                    </span>
+
+                </div>
 
 
                 {/* LOADING */}
@@ -309,6 +338,8 @@ function Problems() {
                                     }
                                 >
 
+                                    {/* DIFFICULTY */}
+
                                     <div className="problem-card-top">
 
                                         <span
@@ -322,12 +353,14 @@ function Problems() {
                                     </div>
 
 
+                                    {/* TITLE */}
+
                                     <h2>
                                         {problem.title}
                                     </h2>
 
 
-                                    {/* PROBLEM TAGS */}
+                                    {/* TAGS */}
 
                                     <div className="problem-tags">
 
@@ -348,11 +381,25 @@ function Problems() {
                                     </div>
 
 
+                                    {/* FOOTER */}
+
                                     <div className="problem-card-footer">
 
-                                        <span>
-                                            Solve Problem →
-                                        </span>
+                                        {solvedProblems.includes(
+                                            problem._id
+                                        ) ? (
+
+                                            <span className="problem-solved">
+                                                ✓ Solved
+                                            </span>
+
+                                        ) : (
+
+                                            <span>
+                                                Solve Problem →
+                                            </span>
+
+                                        )}
 
                                     </div>
 
