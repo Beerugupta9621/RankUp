@@ -13,6 +13,7 @@ function Problems() {
 
     const [search, setSearch] = useState("");
     const [difficulty, setDifficulty] = useState("All");
+    const [tag, setTag] = useState("All");
 
 
     useEffect(() => {
@@ -77,6 +78,20 @@ function Problems() {
     }, [navigate]);
 
 
+    // GET UNIQUE TAGS FROM ALL PROBLEMS
+
+    const allTags = [
+        ...new Set(
+            problems.flatMap(
+                (problem) =>
+                    problem.tags || []
+            )
+        )
+    ];
+
+
+    // SEARCH + DIFFICULTY + TAG FILTER
+
     const filteredProblems =
         problems.filter((problem) => {
 
@@ -91,9 +106,14 @@ function Problems() {
                 difficulty === "All" ||
                 problem.difficulty === difficulty;
 
+            const matchesTag =
+                tag === "All" ||
+                problem.tags?.includes(tag);
+
             return (
                 matchesSearch &&
-                matchesDifficulty
+                matchesDifficulty &&
+                matchesTag
             );
 
         });
@@ -159,6 +179,8 @@ function Problems() {
 
                 <div className="problems-filters">
 
+                    {/* SEARCH */}
+
                     <input
                         type="text"
                         placeholder="Search problems..."
@@ -170,10 +192,14 @@ function Problems() {
                     />
 
 
+                    {/* DIFFICULTY */}
+
                     <select
                         value={difficulty}
                         onChange={(e) =>
-                            setDifficulty(e.target.value)
+                            setDifficulty(
+                                e.target.value
+                            )
                         }
                         className="difficulty-filter"
                     >
@@ -196,14 +222,47 @@ function Problems() {
 
                     </select>
 
+
+                    {/* TAG */}
+
+                    <select
+                        value={tag}
+                        onChange={(e) =>
+                            setTag(e.target.value)
+                        }
+                        className="difficulty-filter"
+                    >
+
+                        <option value="All">
+                            All Tags
+                        </option>
+
+                        {allTags.map(
+                            (currentTag) => (
+
+                                <option
+                                    key={currentTag}
+                                    value={currentTag}
+                                >
+                                    {currentTag}
+                                </option>
+
+                            )
+                        )}
+
+                    </select>
+
                 </div>
 
+
+                {/* LOADING */}
 
                 {loading ? (
 
                     <div className="problems-loading">
                         Loading problems...
                     </div>
+
 
                 ) : filteredProblems.length === 0 ? (
 
@@ -214,11 +273,12 @@ function Problems() {
                         </h2>
 
                         <p>
-                            Try changing your search
-                            or difficulty filter.
+                            Try changing your search,
+                            difficulty, or tag filter.
                         </p>
 
                     </div>
+
 
                 ) : (
 
@@ -255,15 +315,19 @@ function Problems() {
                                     </h2>
 
 
+                                    {/* PROBLEM TAGS */}
+
                                     <div className="problem-tags">
 
                                         {problem.tags?.map(
-                                            (tag) => (
+                                            (currentTag) => (
 
                                                 <span
-                                                    key={tag}
+                                                    key={
+                                                        currentTag
+                                                    }
                                                 >
-                                                    {tag}
+                                                    {currentTag}
                                                 </span>
 
                                             )
