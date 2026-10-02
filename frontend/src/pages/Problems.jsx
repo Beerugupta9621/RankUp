@@ -253,6 +253,18 @@ function Problems() {
                     </select>
 
                 </div>
+                <div className="problems-result-info">
+    <span>
+        {problems.length}{" "}
+        {problems.length === 1 ? "Problem" : "Problems"}
+    </span>
+
+    <span>
+        Showing {filteredProblems.length} of{" "}
+        {problems.length}{" "}
+        {problems.length === 1 ? "problem" : "problems"}
+    </span>
+</div>
 
 
                 {/* LOADING */}
