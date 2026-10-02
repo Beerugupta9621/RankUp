@@ -292,3 +292,27 @@
 .submission-row:hover {
     background: rgba(124, 58, 237, 0.08);
 }
+.submission-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.submission-filters button {
+    padding: 8px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.submission-filters button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.submission-filters button.active {
+    background: #ffffff;
+    color: #000000;
+}
