@@ -18,8 +18,11 @@ function ProblemDetails() {
     const [output, setOutput] = useState("");
     const [verdict, setVerdict] = useState("");
 
+    const [isSolved, setIsSolved] = useState(false);
 
-    // FETCH PROBLEM
+
+    /* FETCH PROBLEM + SOLVED STATUS */
+
     useEffect(() => {
 
         const fetchProblem = async () => {
@@ -33,6 +36,8 @@ function ProblemDetails() {
             }
 
             try {
+
+                /* GET PROBLEM */
 
                 const response = await api.get(
                     `/problems/${id}`,
@@ -51,6 +56,26 @@ function ProblemDetails() {
 
                 setCode(
                     data.starterCode?.cpp || ""
+                );
+
+
+                /* GET SOLVED PROBLEMS */
+
+                const solvedResponse = await api.get(
+                    "/submissions/solved",
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        }
+                    }
+                );
+
+                const solvedProblems =
+                    solvedResponse.data.solvedProblems || [];
+
+                setIsSolved(
+                    solvedProblems.includes(id)
                 );
 
             } catch (error) {
@@ -73,6 +98,8 @@ function ProblemDetails() {
                     );
 
                     navigate("/login");
+
+                    return;
                 }
 
             } finally {
@@ -87,7 +114,8 @@ function ProblemDetails() {
     }, [id, navigate]);
 
 
-    // RUN CODE
+    /* RUN CODE */
+
     const handleRunCode = async () => {
 
         const token =
@@ -114,12 +142,13 @@ function ProblemDetails() {
         try {
 
             const response = await api.post(
-    "/submissions/run",
-    {
-        sourceCode: code,
-        languageId: 54,
-        stdin: problem.testCases?.[0]?.input || ""
-    },
+                "/submissions/run",
+                {
+                    sourceCode: code,
+                    languageId: 54,
+                    stdin:
+                        problem.testCases?.[0]?.input || ""
+                },
                 {
                     headers: {
                         Authorization:
@@ -196,7 +225,8 @@ function ProblemDetails() {
     };
 
 
-    // SUBMIT CODE
+    /* SUBMIT CODE */
+
     const handleSubmit = async () => {
 
         const token =
@@ -260,6 +290,17 @@ function ProblemDetails() {
                 "No output"
             );
 
+
+            /* UPDATE SOLVED STATUS */
+
+            if (
+                submission.status === "Accepted"
+            ) {
+
+                setIsSolved(true);
+
+            }
+
         } catch (error) {
 
             console.error(
@@ -297,7 +338,8 @@ function ProblemDetails() {
     };
 
 
-    // LOADING
+    /* LOADING */
+
     if (loading) {
 
         return (
@@ -311,7 +353,8 @@ function ProblemDetails() {
     }
 
 
-    // PROBLEM NOT FOUND
+    /* PROBLEM NOT FOUND */
+
     if (!problem) {
 
         return (
@@ -373,7 +416,6 @@ function ProblemDetails() {
             </nav>
 
 
-
             {/* WORKSPACE */}
 
             <main className="problem-workspace">
@@ -410,6 +452,17 @@ function ProblemDetails() {
                         </div>
 
 
+                        {/* SOLVED BADGE */}
+
+                        {isSolved && (
+
+                            <div className="problem-solved-badge">
+                                ✓ Problem Solved
+                            </div>
+
+                        )}
+
+
                         <div className="problem-detail-tags">
 
                             {problem.tags?.map(
@@ -425,7 +478,6 @@ function ProblemDetails() {
                         </div>
 
                     </div>
-
 
 
                     <div className="problem-content">
@@ -444,7 +496,6 @@ function ProblemDetails() {
                             </p>
 
                         </section>
-
 
 
                         {/* EXAMPLES */}
@@ -518,7 +569,6 @@ function ProblemDetails() {
                         )}
 
 
-
                         {/* CONSTRAINTS */}
 
                         {problem.constraints?.length > 0 && (
@@ -553,7 +603,6 @@ function ProblemDetails() {
                 </section>
 
 
-
                 {/* RIGHT SIDE - EDITOR */}
 
                 <section className="editor-panel">
@@ -569,7 +618,6 @@ function ProblemDetails() {
 
 
                         <div className="editor-actions">
-
 
                             <button
                                 className="run-button"
@@ -602,11 +650,9 @@ function ProblemDetails() {
 
                             </button>
 
-
                         </div>
 
                     </div>
-
 
 
                     {/* CODE EDITOR */}
@@ -621,7 +667,6 @@ function ProblemDetails() {
                         }
                         spellCheck="false"
                     />
-
 
 
                     {/* OUTPUT */}
