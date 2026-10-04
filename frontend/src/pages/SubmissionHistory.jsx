@@ -11,9 +11,6 @@ function SubmissionHistory() {
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const [filter, setFilter] = useState("All");
-
-
     useEffect(() => {
 
         const fetchHistory = async () => {
@@ -39,7 +36,7 @@ function SubmissionHistory() {
                 );
 
                 setSubmissions(
-                    response.data.submissions
+                    response.data.submissions || []
                 );
 
             } catch (error) {
@@ -104,13 +101,47 @@ function SubmissionHistory() {
     };
 
 
-    const filteredSubmissions =
-        filter === "All"
-            ? submissions
-            : submissions.filter(
-                (submission) =>
-                    submission.status === filter
-            );
+    /* STATISTICS */
+
+    const totalSubmissions =
+        submissions.length;
+
+    const acceptedSubmissions =
+        submissions.filter(
+            (submission) =>
+                submission.status
+                    ?.toLowerCase() === "accepted"
+        ).length;
+
+    const wrongAnswers =
+        submissions.filter(
+            (submission) =>
+                submission.status
+                    ?.toLowerCase() === "wrong answer"
+        ).length;
+
+    const runtimeErrors =
+        submissions.filter(
+            (submission) =>
+                submission.status
+                    ?.toLowerCase() === "runtime error"
+        ).length;
+
+    const compilationErrors =
+        submissions.filter(
+            (submission) =>
+                submission.status
+                    ?.toLowerCase() === "compilation error"
+        ).length;
+
+    const acceptanceRate =
+        totalSubmissions > 0
+            ? Math.round(
+                  (acceptedSubmissions /
+                      totalSubmissions) *
+                      100
+              )
+            : 0;
 
 
     return (
@@ -209,265 +240,208 @@ function SubmissionHistory() {
                 ) : (
 
                     <>
+                        {/* STATISTICS */}
 
-                        {/* FILTERS */}
+                        <div className="submission-stats">
 
-                        <div className="submission-filters">
+                            <div className="submission-stat-card">
+                                <span>Total</span>
+                                <strong>
+                                    {totalSubmissions}
+                                </strong>
+                            </div>
 
-                            <button
-                                className={
-                                    filter === "All"
-                                        ? "active"
-                                        : ""
-                                }
-                                onClick={() =>
-                                    setFilter("All")
-                                }
-                            >
-                                All
-                            </button>
+                            <div className="submission-stat-card accepted-stat">
+                                <span>Accepted</span>
+                                <strong>
+                                    {acceptedSubmissions}
+                                </strong>
+                            </div>
 
+                            <div className="submission-stat-card">
+                                <span>Wrong Answer</span>
+                                <strong>
+                                    {wrongAnswers}
+                                </strong>
+                            </div>
 
-                            <button
-                                className={
-                                    filter === "Accepted"
-                                        ? "active"
-                                        : ""
-                                }
-                                onClick={() =>
-                                    setFilter("Accepted")
-                                }
-                            >
-                                Accepted
-                            </button>
+                            <div className="submission-stat-card">
+                                <span>Runtime Error</span>
+                                <strong>
+                                    {runtimeErrors}
+                                </strong>
+                            </div>
 
+                            <div className="submission-stat-card">
+                                <span>Compilation Error</span>
+                                <strong>
+                                    {compilationErrors}
+                                </strong>
+                            </div>
 
-                            <button
-                                className={
-                                    filter === "Wrong Answer"
-                                        ? "active"
-                                        : ""
-                                }
-                                onClick={() =>
-                                    setFilter("Wrong Answer")
-                                }
-                            >
-                                Wrong Answer
-                            </button>
-
-
-                            <button
-                                className={
-                                    filter === "Runtime Error"
-                                        ? "active"
-                                        : ""
-                                }
-                                onClick={() =>
-                                    setFilter("Runtime Error")
-                                }
-                            >
-                                Runtime Error
-                            </button>
-
-
-                            <button
-                                className={
-                                    filter === "Compilation Error"
-                                        ? "active"
-                                        : ""
-                                }
-                                onClick={() =>
-                                    setFilter(
-                                        "Compilation Error"
-                                    )
-                                }
-                            >
-                                Compilation Error
-                            </button>
+                            <div className="submission-stat-card rate-stat">
+                                <span>Acceptance Rate</span>
+                                <strong>
+                                    {acceptanceRate}%
+                                </strong>
+                            </div>
 
                         </div>
 
 
-                        {/* TABLE */}
+                        {/* SUBMISSION TABLE */}
 
-                        {filteredSubmissions.length === 0 ? (
+                        <div className="submission-table-wrapper">
 
-                            <div className="submission-empty">
+                            <table className="submission-table">
 
-                                <div className="empty-icon">
-                                    🔍
-                                </div>
+                                <thead>
 
-                                <h2>
-                                    No matching submissions
-                                </h2>
+                                    <tr>
 
-                                <p>
-                                    There are no submissions
-                                    with the selected verdict.
-                                </p>
+                                        <th>
+                                            Problem
+                                        </th>
 
-                            </div>
+                                        <th>
+                                            Difficulty
+                                        </th>
 
-                        ) : (
+                                        <th>
+                                            Language
+                                        </th>
 
-                            <div className="submission-table-wrapper">
+                                        <th>
+                                            Verdict
+                                        </th>
 
-                                <table className="submission-table">
+                                        <th>
+                                            Time
+                                        </th>
 
-                                    <thead>
+                                        <th>
+                                            Memory
+                                        </th>
 
-                                        <tr>
+                                        <th>
+                                            Submitted
+                                        </th>
 
-                                            <th>
-                                                Problem
-                                            </th>
+                                    </tr>
 
-                                            <th>
-                                                Difficulty
-                                            </th>
+                                </thead>
 
-                                            <th>
-                                                Language
-                                            </th>
 
-                                            <th>
-                                                Verdict
-                                            </th>
+                                <tbody>
 
-                                            <th>
-                                                Time
-                                            </th>
+                                    {submissions.map(
+                                        (submission) => (
 
-                                            <th>
-                                                Memory
-                                            </th>
+                                        <tr
+                                            key={submission._id}
+                                            onClick={() =>
+                                                navigate(
+                                                    `/submissions/${submission._id}`
+                                                )
+                                            }
+                                            className="submission-row"
+                                        >
 
-                                            <th>
-                                                Submitted
-                                            </th>
+                                            <td className="problem-name">
+
+                                                {
+                                                    submission
+                                                        .problem
+                                                        ?.title ||
+                                                    "Unknown Problem"
+                                                }
+
+                                            </td>
+
+
+                                            <td>
+
+                                                {
+                                                    submission
+                                                        .problem
+                                                        ?.difficulty ||
+                                                    "-"
+                                                }
+
+                                            </td>
+
+
+                                            <td>
+
+                                                {
+                                                    submission.language
+                                                        ?.toUpperCase() ||
+                                                    "-"
+                                                }
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <span
+                                                    className={
+                                                        `status ${getStatusClass(
+                                                            submission.status
+                                                        )}`
+                                                    }
+                                                >
+                                                    {
+                                                        submission.status ||
+                                                        "Pending"
+                                                    }
+                                                </span>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                {
+                                                    submission
+                                                        .executionTime ||
+                                                    "-"
+                                                }
+
+                                            </td>
+
+
+                                            <td>
+
+                                                {
+                                                    submission.memory
+                                                        ? `${submission.memory} KB`
+                                                        : "-"
+                                                }
+
+                                            </td>
+
+
+                                            <td>
+
+                                                {
+                                                    new Date(
+                                                        submission.createdAt
+                                                    ).toLocaleString()
+                                                }
+
+                                            </td>
 
                                         </tr>
 
-                                    </thead>
+                                    ))
+                                    }
 
+                                </tbody>
 
-                                    <tbody>
+                            </table>
 
-                                        {filteredSubmissions.map(
-                                            (submission) => (
-
-                                                <tr
-                                                    key={
-                                                        submission._id
-                                                    }
-                                                    onClick={() =>
-                                                        navigate(
-                                                            `/submissions/${submission._id}`
-                                                        )
-                                                    }
-                                                    className="submission-row"
-                                                >
-
-                                                    <td className="problem-name">
-
-                                                        {
-                                                            submission
-                                                                .problem
-                                                                ?.title ||
-                                                            "Unknown Problem"
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            submission
-                                                                .problem
-                                                                ?.difficulty ||
-                                                            "-"
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            submission
-                                                                .language
-                                                                ?.toUpperCase() ||
-                                                            "-"
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        <span
-                                                            className={
-                                                                `status ${getStatusClass(
-                                                                    submission.status
-                                                                )}`
-                                                            }
-                                                        >
-                                                            {
-                                                                submission.status ||
-                                                                "Pending"
-                                                            }
-                                                        </span>
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            submission
-                                                                .executionTime ||
-                                                            "-"
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            submission.memory
-                                                                ? `${submission.memory} KB`
-                                                                : "-"
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            new Date(
-                                                                submission.createdAt
-                                                            ).toLocaleString()
-                                                        }
-
-                                                    </td>
-
-                                                </tr>
-
-                                            )
-                                        )}
-
-                                    </tbody>
-
-                                </table>
-
-                            </div>
-
-                        )}
-
+                        </div>
                     </>
 
                 )}
