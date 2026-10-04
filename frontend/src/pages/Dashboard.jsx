@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import api from "../services/api";
 import "./Dashboard.css";
 
@@ -9,12 +10,13 @@ function Dashboard() {
     const navigate = useNavigate();
 
     const [user, setUser] = useState(null);
+    const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
 
 
     useEffect(() => {
 
-        const getProfile = async () => {
+        const getDashboardData = async () => {
 
             const token =
                 localStorage.getItem("accessToken");
@@ -28,44 +30,73 @@ function Dashboard() {
 
             try {
 
-                const response = await api.get(
+                // GET USER PROFILE
+                const profileResponse = await api.get(
                     "/auth/me",
                     {
                         headers: {
-                            Authorization: `Bearer ${token}`
+                            Authorization:
+                                `Bearer ${token}`
                         }
                     }
                 );
 
 
-                setUser(response.data.user);
+                setUser(
+                    profileResponse.data.user
+                );
 
 
                 // Keep local storage updated
                 localStorage.setItem(
                     "user",
-                    JSON.stringify(response.data.user)
+                    JSON.stringify(
+                        profileResponse.data.user
+                    )
+                );
+
+
+                // GET SUBMISSION HISTORY
+                const submissionResponse =
+                    await api.get(
+                        "/submissions/history",
+                        {
+                            headers: {
+                                Authorization:
+                                    `Bearer ${token}`
+                            }
+                        }
+                    );
+
+
+                setSubmissions(
+                    submissionResponse.data.submissions || []
                 );
 
 
             } catch (error) {
 
                 console.error(
-                    "Profile error:",
+                    "Dashboard error:",
                     error
                 );
 
 
-                localStorage.removeItem(
-                    "accessToken"
-                );
+                if (
+                    error.response?.status === 401
+                ) {
 
-                localStorage.removeItem(
-                    "user"
-                );
+                    localStorage.removeItem(
+                        "accessToken"
+                    );
 
+                    localStorage.removeItem(
+                        "user"
+                    );
 
-                navigate("/login");
+                    navigate("/login");
+
+                }
 
             } finally {
 
@@ -76,7 +107,7 @@ function Dashboard() {
         };
 
 
-        getProfile();
+        getDashboardData();
 
     }, [navigate]);
 
@@ -94,6 +125,30 @@ function Dashboard() {
         navigate("/login");
 
     };
+
+
+    /* SUBMISSION STATISTICS */
+
+    const totalSubmissions =
+        submissions.length;
+
+
+    const acceptedSubmissions =
+        submissions.filter(
+            (submission) =>
+                submission.status
+                    ?.toLowerCase() === "accepted"
+        ).length;
+
+
+    const acceptanceRate =
+        totalSubmissions > 0
+            ? Math.round(
+                  (acceptedSubmissions /
+                      totalSubmissions) *
+                      100
+              )
+            : 0;
 
 
     if (loading) {
@@ -189,7 +244,7 @@ function Dashboard() {
 
 
 
-                {/* STATS */}
+                {/* MAIN STATS */}
 
                 <section className="stats-grid">
 
@@ -245,6 +300,63 @@ function Dashboard() {
 
                     </div>
 
+
+                </section>
+
+
+
+                {/* SUBMISSION PROGRESS */}
+
+                <section className="dashboard-progress-section">
+
+                    <h2 className="quick-title">
+                        Submission Progress
+                    </h2>
+
+
+                    <div className="dashboard-progress-grid">
+
+
+                        <div className="progress-card">
+
+                            <div className="progress-label">
+                                Total Submissions
+                            </div>
+
+                            <div className="progress-value">
+                                {totalSubmissions}
+                            </div>
+
+                        </div>
+
+
+                        <div className="progress-card">
+
+                            <div className="progress-label">
+                                Accepted
+                            </div>
+
+                            <div className="progress-value progress-accepted">
+                                {acceptedSubmissions}
+                            </div>
+
+                        </div>
+
+
+                        <div className="progress-card">
+
+                            <div className="progress-label">
+                                Acceptance Rate
+                            </div>
+
+                            <div className="progress-value">
+                                {acceptanceRate}%
+                            </div>
+
+                        </div>
+
+
+                    </div>
 
                 </section>
 

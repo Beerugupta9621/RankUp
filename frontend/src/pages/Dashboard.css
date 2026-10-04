@@ -277,3 +277,46 @@
     }
 
 }
+
+/* SUBMISSION PROGRESS */
+
+.dashboard-progress-section {
+    margin-top: 40px;
+}
+
+.dashboard-progress-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.progress-card {
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.progress-label {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.progress-value {
+    color: #ffffff;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.progress-accepted {
+    color: #4ade80;
+}
+
+@media (max-width: 700px) {
+
+    .dashboard-progress-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
