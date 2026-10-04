@@ -11,6 +11,8 @@ import Problems from "./pages/Problems";
 import ProblemDetails from "./pages/ProblemDetails";
 import SubmissionHistory from "./pages/SubmissionHistory";
 import SubmissionDetails from "./pages/SubmissionDetails";
+import Arena from "./pages/Arena";
+
 function LandingPage() {
     return (
         <div className="app">
@@ -216,6 +218,7 @@ function App() {
                 path="/problems/:id"
                 element={<ProblemDetails />}
             />
+            <Route path="/arena" element={<Arena />} />
             <Route
               path="/submissions"
                   element={<SubmissionHistory />}
