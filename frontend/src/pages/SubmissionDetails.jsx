@@ -5,288 +5,186 @@ import api from "../services/api";
 import "./SubmissionDetails.css";
 
 function SubmissionDetails() {
-
     const { id } = useParams();
     const navigate = useNavigate();
 
     const [submission, setSubmission] = useState(null);
     const [loading, setLoading] = useState(true);
 
-
     useEffect(() => {
-
         const fetchSubmission = async () => {
-
-            const token =
-                localStorage.getItem("accessToken");
-
-            if (!token) {
-                navigate("/login");
-                return;
-            }
-
             try {
+                const token = localStorage.getItem("accessToken");
 
-                const response = await api.get(
-                    `/submissions/${id}`,
-                    {
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`
-                        }
-                    }
-                );
-
-                setSubmission(
-                    response.data.submission
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "Submission details error:",
-                    error
-                );
-
-                if (
-                    error.response?.status === 401
-                ) {
-
-                    localStorage.removeItem(
-                        "accessToken"
-                    );
-
-                    localStorage.removeItem(
-                        "user"
-                    );
-
+                if (!token) {
                     navigate("/login");
-
-                } else if (
-                    error.response?.status === 404
-                ) {
-
-                    setSubmission(null);
-
+                    return;
                 }
 
+                const response = await api.get(`/submissions/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                setSubmission(response.data.submission);
+            } catch (error) {
+                console.error(
+                    "Failed to fetch submission:",
+                    error.response?.data || error.message
+                );
             } finally {
-
                 setLoading(false);
-
             }
         };
 
         fetchSubmission();
-
     }, [id, navigate]);
 
-
     if (loading) {
-
         return (
-            <div className="submission-details-loading">
-                Loading submission...
+            <div className="submission-details-page">
+                <div className="submission-details-container">
+                    <p>Loading submission...</p>
+                </div>
             </div>
         );
-
     }
-
 
     if (!submission) {
-
         return (
-            <div className="submission-details-loading">
+            <div className="submission-details-page">
+                <div className="submission-details-container">
+                    <h2>Submission not found</h2>
 
-                <h2>
-                    Submission not found
-                </h2>
-
-                <button
-                    onClick={() =>
-                        navigate("/submissions")
-                    }
-                >
-                    ← Submission History
-                </button>
-
+                    <button onClick={() => navigate("/submissions")}>
+                        Back to Submissions
+                    </button>
+                </div>
             </div>
         );
-
     }
-
 
     return (
         <div className="submission-details-page">
-
-            <nav className="submission-details-nav">
-
-                <div
-                    className="submission-details-logo"
-                    onClick={() =>
-                        navigate("/dashboard")
-                    }
-                >
-
-                    <div className="submission-details-logo-icon">
-                        R
-                    </div>
-
-                    <span>
-                        RankUp
-                    </span>
-
-                </div>
-
+            <div className="submission-details-container">
 
                 <button
-                    onClick={() =>
-                        navigate("/submissions")
-                    }
+                    className="back-button"
+                    onClick={() => navigate("/submissions")}
                 >
-                    ← History
+                    ← Back to Submissions
                 </button>
 
-            </nav>
+                <div className="submission-header">
+                    <div>
+                        <h1>
+                            {submission.problem?.title || "Problem"}
+                        </h1>
 
+                        {submission.problem?.difficulty && (
+                            <span
+                                className={`submission-difficulty ${submission.problem.difficulty.toLowerCase()}`}
+                            >
+                                {submission.problem.difficulty}
+                            </span>
+                        )}
+                    </div>
 
-            <main className="submission-details-main">
-
-                <div className="details-label">
-                    SUBMISSION
+                    <div
+                        className={`submission-verdict ${submission.status
+                            .toLowerCase()
+                            .replace(/\s+/g, "-")}`}
+                    >
+                        {submission.status}
+                    </div>
                 </div>
 
+                <div className="submission-info-grid">
 
-                <h1>
-                    {
-                        submission.problem?.title ||
-                        "Unknown Problem"
-                    }
-                </h1>
-
-
-                <div className="submission-meta">
-
-                    <div>
-                        <span>
-                            Verdict
-                        </span>
-
+                    <div className="submission-info-card">
+                        <span>Language</span>
                         <strong>
-                            {submission.status}
+                            {submission.language?.toUpperCase() || "CPP"}
                         </strong>
                     </div>
 
-
-                    <div>
-                        <span>
-                            Difficulty
-                        </span>
-
+                    <div className="submission-info-card">
+                        <span>Execution Time</span>
                         <strong>
-                            {
-                                submission
-                                    .problem
-                                    ?.difficulty ||
-                                "-"
-                            }
+                            {submission.executionTime || "N/A"}
                         </strong>
                     </div>
 
-
-                    <div>
-                        <span>
-                            Language
-                        </span>
-
+                    <div className="submission-info-card">
+                        <span>Memory</span>
                         <strong>
-                            {
-                                submission.language
-                                    ?.toUpperCase() ||
-                                "-"
-                            }
+                            {submission.memory
+                                ? `${submission.memory} KB`
+                                : "N/A"}
                         </strong>
                     </div>
 
-
-                    <div>
-                        <span>
-                            Time
-                        </span>
-
+                    <div className="submission-info-card">
+                        <span>Submitted</span>
                         <strong>
-                            {
-                                submission
-                                    .executionTime ||
-                                "-"
-                            }
-                        </strong>
-                    </div>
-
-
-                    <div>
-                        <span>
-                            Memory
-                        </span>
-
-                        <strong>
-                            {
-                                submission.memory
-                                    ? `${submission.memory} KB`
-                                    : "-"
-                            }
+                            {new Date(
+                                submission.createdAt
+                            ).toLocaleString()}
                         </strong>
                     </div>
 
                 </div>
 
+                <div className="submission-section">
+                    <h2>Source Code</h2>
 
-                <section className="code-section">
-
-                    <div className="section-title">
-                        Submitted Code
-                    </div>
-
-                    <pre>
-                        <code>
-                            {
-                                submission.sourceCode
-                            }
-                        </code>
+                    <pre className="submission-code">
+                        <code>{submission.sourceCode}</code>
                     </pre>
-
-                </section>
-
-
-                <section className="output-section">
-
-                    <div className="section-title">
-                        Output
-                    </div>
-
-                    <pre>
-                        {
-                            submission.stdout ||
-                            submission.stderr ||
-                            submission.compileOutput ||
-                            "No output"
-                        }
-                    </pre>
-
-                </section>
-
-
-                <div className="submission-date">
-
-                    Submitted on{" "}
-                    {new Date(
-                        submission.createdAt
-                    ).toLocaleString()}
-
                 </div>
 
-            </main>
+                {submission.stdin && (
+                    <div className="submission-section">
+                        <h2>Input</h2>
 
+                        <pre className="submission-output">
+                            {submission.stdin}
+                        </pre>
+                    </div>
+                )}
+
+                {submission.stdout && (
+                    <div className="submission-section">
+                        <h2>Output</h2>
+
+                        <pre className="submission-output">
+                            {submission.stdout}
+                        </pre>
+                    </div>
+                )}
+
+                {submission.stderr && (
+                    <div className="submission-section">
+                        <h2>Error</h2>
+
+                        <pre className="submission-error">
+                            {submission.stderr}
+                        </pre>
+                    </div>
+                )}
+
+                {submission.compileOutput && (
+                    <div className="submission-section">
+                        <h2>Compilation Output</h2>
+
+                        <pre className="submission-error">
+                            {submission.compileOutput}
+                        </pre>
+                    </div>
+                )}
+
+            </div>
         </div>
     );
 }
