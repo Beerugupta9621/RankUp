@@ -320,3 +320,118 @@
     }
 
 }
+.codeforces-card {
+    margin-top: 30px;
+    padding: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(16px);
+}
+
+.codeforces-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.codeforces-label {
+    color: #a78bfa;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.codeforces-header h2 {
+    margin: 8px 0;
+    font-size: 24px;
+}
+
+.codeforces-header p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.codeforces-icon {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: rgba(124, 58, 237, 0.18);
+    color: #c4b5fd;
+    font-weight: 800;
+}
+
+.codeforces-form {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.codeforces-form input {
+    flex: 1;
+    padding: 13px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    outline: none;
+    background: rgba(0, 0, 0, 0.25);
+    color: white;
+}
+
+.codeforces-form button {
+    padding: 13px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #7c3aed;
+    color: white;
+    font-weight: 700;
+}
+
+.codeforces-success {
+    margin-top: 15px;
+    color: #4ade80;
+}
+
+.codeforces-error {
+    margin-top: 15px;
+    color: #f87171;
+}
+
+.codeforces-profile {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-top: 24px;
+}
+
+.codeforces-profile div {
+    padding: 18px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.codeforces-profile span {
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 12px;
+}
+
+.codeforces-profile strong {
+    font-size: 18px;
+    color: white;
+}
+
+@media (max-width: 700px) {
+    .codeforces-form {
+        flex-direction: column;
+    }
+
+    .codeforces-profile {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

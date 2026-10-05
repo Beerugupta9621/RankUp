@@ -13,6 +13,13 @@ function Dashboard() {
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Codeforces state
+    const [codeforcesHandle, setCodeforcesHandle] = useState("");
+    const [codeforcesProfile, setCodeforcesProfile] = useState(null);
+    const [cfMessage, setCfMessage] = useState("");
+    const [cfError, setCfError] = useState("");
+    const [cfLoading, setCfLoading] = useState(false);
+
 
     useEffect(() => {
 
@@ -42,18 +49,32 @@ function Dashboard() {
                 );
 
 
-                setUser(
-                    profileResponse.data.user
-                );
+                const currentUser =
+                    profileResponse.data.user;
+
+
+                setUser(currentUser);
 
 
                 // Keep local storage updated
                 localStorage.setItem(
                     "user",
-                    JSON.stringify(
-                        profileResponse.data.user
-                    )
+                    JSON.stringify(currentUser)
                 );
+
+
+                // Show already linked Codeforces profile
+                if (currentUser.codeforcesHandle) {
+
+                    setCodeforcesProfile({
+                        handle:
+                            currentUser.codeforcesHandle,
+
+                        rating:
+                            currentUser.codeforcesRating ?? 0
+                    });
+
+                }
 
 
                 // GET SUBMISSION HISTORY
@@ -123,6 +144,99 @@ function Dashboard() {
         );
 
         navigate("/login");
+
+    };
+
+
+    // LINK CODEFORCES PROFILE
+    const handleCodeforcesLink = async () => {
+
+        if (!codeforcesHandle.trim()) {
+
+            setCfError(
+                "Enter a Codeforces handle"
+            );
+
+            setCfMessage("");
+
+            return;
+        }
+
+
+        setCfMessage("");
+        setCfError("");
+        setCfLoading(true);
+
+
+        try {
+
+            const token =
+                localStorage.getItem("accessToken");
+
+
+            const response = await api.put(
+                "/auth/codeforces",
+                {
+                    handle:
+                        codeforcesHandle.trim()
+                },
+                {
+                    headers: {
+                        Authorization:
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+
+            setCodeforcesProfile(
+                response.data.profile
+            );
+
+
+            // Update user state
+            if (response.data.user) {
+
+                setUser(
+                    response.data.user
+                );
+
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(
+                        response.data.user
+                    )
+                );
+
+            }
+
+
+            setCfMessage(
+                "Codeforces profile linked successfully!"
+            );
+
+
+            setCodeforcesHandle("");
+
+
+        } catch (error) {
+
+            console.error(
+                "Codeforces linking error:",
+                error
+            );
+
+
+            setCfError(
+                error.response?.data?.message ||
+                "Failed to link Codeforces profile"
+            );
+
+        } finally {
+
+            setCfLoading(false);
+
+        }
 
     };
 
@@ -357,6 +471,148 @@ function Dashboard() {
 
 
                     </div>
+
+                </section>
+
+
+
+                {/* CODEFORCES */}
+
+                <section className="codeforces-card">
+
+                    <div className="codeforces-header">
+
+                        <div>
+
+                            <span className="codeforces-label">
+                                CODEFORCES
+                            </span>
+
+                            <h2>
+                                Connect Your Profile
+                            </h2>
+
+                            <p>
+                                Sync your Codeforces rating and
+                                rank with RankUp.
+                            </p>
+
+                        </div>
+
+
+                        <div className="codeforces-icon">
+                            CF
+                        </div>
+
+                    </div>
+
+
+                    <div className="codeforces-form">
+
+                        <input
+                            type="text"
+                            placeholder="Enter Codeforces handle"
+                            value={codeforcesHandle}
+                            onChange={(e) =>
+                                setCodeforcesHandle(
+                                    e.target.value
+                                )
+                            }
+                        />
+
+
+                        <button
+                            onClick={handleCodeforcesLink}
+                            disabled={cfLoading}
+                        >
+
+                            {cfLoading
+                                ? "Linking..."
+                                : "Link Profile"}
+
+                        </button>
+
+                    </div>
+
+
+                    {cfMessage && (
+
+                        <div className="codeforces-success">
+                            {cfMessage}
+                        </div>
+
+                    )}
+
+
+                    {cfError && (
+
+                        <div className="codeforces-error">
+                            {cfError}
+                        </div>
+
+                    )}
+
+
+                    {codeforcesProfile && (
+
+                        <div className="codeforces-profile">
+
+
+                            <div>
+
+                                <span>
+                                    Handle
+                                </span>
+
+                                <strong>
+                                    {codeforcesProfile.handle}
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    Rating
+                                </span>
+
+                                <strong>
+                                    {codeforcesProfile.rating}
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    Max Rating
+                                </span>
+
+                                <strong>
+                                    {codeforcesProfile.maxRating ?? "-"}
+                                </strong>
+
+                            </div>
+
+
+                            <div>
+
+                                <span>
+                                    Rank
+                                </span>
+
+                                <strong>
+                                    {codeforcesProfile.rank ?? "-"}
+                                </strong>
+
+                            </div>
+
+
+                        </div>
+
+                    )}
 
                 </section>
 
