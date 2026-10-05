@@ -11,6 +11,8 @@ const authRoutes = require("./routes/authRoutes");
 const problemRoutes = require("./routes/problemRoutes");
 const submissionRoutes = require("./routes/submissionRoutes");
 
+const setupArenaSocket = require("./socket/arenaSocket");
+
 const app = express();
 
 connectDB();
@@ -38,24 +40,9 @@ const io = new Server(server, {
 });
 
 
-/* BASIC SOCKET CONNECTION */
+/* CODEARENA SOCKET */
 
-io.on("connection", (socket) => {
-
-    console.log(
-        `User connected to CodeArena: ${socket.id}`
-    );
-
-
-    socket.on("disconnect", () => {
-
-        console.log(
-            `User disconnected from CodeArena: ${socket.id}`
-        );
-
-    });
-
-});
+setupArenaSocket(io);
 
 
 /* TEST ROUTE */
@@ -72,7 +59,9 @@ app.get("/", (req, res) => {
 /* API ROUTES */
 
 app.use("/api/auth", authRoutes);
+
 app.use("/api/problems", problemRoutes);
+
 app.use("/api/submissions", submissionRoutes);
 
 
