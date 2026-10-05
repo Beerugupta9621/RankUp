@@ -188,3 +188,13 @@
     }
 
 }
+
+.arena-room-id {
+    margin-bottom: 20px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(124, 58, 237, 0.12);
+    color: #c4b5fd;
+    font-size: 14px;
+    font-weight: 600;
+}
