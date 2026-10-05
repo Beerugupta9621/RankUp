@@ -1,0 +1,208 @@
+.register-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(124, 58, 237, 0.16),
+            transparent 38%
+        ),
+        #050507;
+    color: white;
+}
+
+
+.register-card {
+    width: 100%;
+    max-width: 450px;
+    padding: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.035);
+    backdrop-filter: blur(18px);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
+}
+
+
+.register-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+
+.register-logo {
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: linear-gradient(
+        135deg,
+        #7c3aed,
+        #4f46e5
+    );
+    font-size: 22px;
+    font-weight: 800;
+}
+
+
+.register-header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+}
+
+
+.register-header p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+.register-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+
+.register-field label {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+.register-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 9px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.04);
+    color: white;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+
+.register-field input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+
+.register-field input:focus {
+    border-color: #7c3aed;
+    background: rgba(124, 58, 237, 0.06);
+}
+
+
+.register-button {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 9px;
+    background: #7c3aed;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+
+.register-button:hover {
+    background: #6d28d9;
+}
+
+
+.register-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+.register-success,
+.register-error {
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+
+.register-success {
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    background: rgba(74, 222, 128, 0.08);
+    color: #4ade80;
+}
+
+
+.register-success button {
+    display: block;
+    margin-top: 10px;
+    padding: 7px 12px;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    border-radius: 7px;
+    background: transparent;
+    color: #4ade80;
+    cursor: pointer;
+}
+
+
+.register-error {
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    background: rgba(248, 113, 113, 0.08);
+    color: #f87171;
+}
+
+
+.register-login {
+    margin: 25px 0 0;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 13px;
+}
+
+
+.register-login a {
+    color: #a78bfa;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+
+.register-login a:hover {
+    color: #c4b5fd;
+}
+
+
+@media (max-width: 500px) {
+
+    .register-page {
+        padding: 16px;
+    }
+
+    .register-card {
+        padding: 28px 22px;
+    }
+
+    .register-header h1 {
+        font-size: 28px;
+    }
+
+}
