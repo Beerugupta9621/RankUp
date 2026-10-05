@@ -338,3 +338,28 @@
     }
 
 }
+
+.arena-battle-status {
+    max-width: 1400px;
+    margin: 0 auto 18px;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 13px;
+}
+
+.arena-battle-status span:last-child {
+    color: #a78bfa;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+
+    .arena-battle-status {
+        padding: 0 12px;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+}

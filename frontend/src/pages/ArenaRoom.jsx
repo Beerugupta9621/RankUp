@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { io } from "socket.io-client";
 import api from "../services/api";
 import "./ArenaRoom.css";
 
@@ -9,6 +10,24 @@ function ArenaRoom() {
     const navigate = useNavigate();
 
     const [problem, setProblem] = useState(null);
+
+    const [socket, setSocket] = useState(null);
+
+    const [playerCount, setPlayerCount] = useState(1);
+
+    const [opponentStatus, setOpponentStatus] =
+        useState("Waiting for opponent...");
+
+    const [timeLeft, setTimeLeft] = useState(600);
+
+    const [submitted, setSubmitted] = useState(false);
+
+    const [opponentSubmitted, setOpponentSubmitted] =
+        useState(false);
+
+    const [loading, setLoading] = useState(true);
+
+
     const [code, setCode] = useState(
         `#include <bits/stdc++.h>
 using namespace std;
@@ -21,10 +40,8 @@ int main() {
 }`
     );
 
-    const [timeLeft, setTimeLeft] = useState(600);
-    const [submitted, setSubmitted] = useState(false);
-    const [loading, setLoading] = useState(true);
 
+    /* LOAD PROBLEM */
 
     useEffect(() => {
 
@@ -33,10 +50,15 @@ int main() {
             const token =
                 localStorage.getItem("accessToken");
 
+
             if (!token) {
+
                 navigate("/login");
+
                 return;
+
             }
+
 
             try {
 
@@ -44,16 +66,21 @@ int main() {
                     "/problems",
                     {
                         headers: {
-                            Authorization: `Bearer ${token}`
+                            Authorization:
+                                `Bearer ${token}`
                         }
                     }
                 );
 
+
                 const problems =
                     response.data.problems || [];
 
+
                 if (problems.length > 0) {
+
                     setProblem(problems[0]);
+
                 }
 
             } catch (error) {
@@ -71,10 +98,84 @@ int main() {
 
         };
 
+
         fetchProblem();
 
     }, [navigate]);
 
+
+    /* SOCKET CONNECTION */
+
+    useEffect(() => {
+
+        const newSocket =
+            io("http://localhost:5000");
+
+
+        setSocket(newSocket);
+
+
+        newSocket.on(
+            "connect",
+            () => {
+
+                newSocket.emit(
+                    "join_arena",
+                    roomId
+                );
+
+            }
+        );
+
+
+        newSocket.on(
+            "arena_players",
+            (data) => {
+
+                setPlayerCount(
+                    data.count
+                );
+
+            }
+        );
+
+
+        newSocket.on(
+            "opponent_connected",
+            () => {
+
+                setOpponentStatus(
+                    "🟢 Opponent Connected"
+                );
+
+            }
+        );
+
+
+        newSocket.on(
+            "opponent_submitted",
+            () => {
+
+                setOpponentSubmitted(true);
+
+                setOpponentStatus(
+                    "✓ Opponent Submitted"
+                );
+
+            }
+        );
+
+
+        return () => {
+
+            newSocket.disconnect();
+
+        };
+
+    }, [roomId]);
+
+
+    /* TIMER */
 
     useEffect(() => {
 
@@ -82,35 +183,65 @@ int main() {
             return;
         }
 
-        const timer = setInterval(() => {
 
-            setTimeLeft((previous) => previous - 1);
+        const timer =
+            setInterval(() => {
 
-        }, 1000);
+                setTimeLeft(
+                    (previous) =>
+                        previous - 1
+                );
 
-        return () => clearInterval(timer);
+            }, 1000);
+
+
+        return () => {
+
+            clearInterval(timer);
+
+        };
 
     }, [timeLeft]);
 
+
+    /* FORMAT TIMER */
 
     const formatTime = () => {
 
         const minutes =
             Math.floor(timeLeft / 60);
 
+
         const seconds =
             timeLeft % 60;
 
-        return `${String(minutes).padStart(2, "0")}:${String(
-            seconds
-        ).padStart(2, "0")}`;
+
+        return `${String(minutes).padStart(
+            2,
+            "0"
+        )}:${String(seconds).padStart(
+            2,
+            "0"
+        )}`;
 
     };
 
 
+    /* SUBMIT */
+
     const handleSubmit = () => {
 
         setSubmitted(true);
+
+
+        if (socket) {
+
+            socket.emit(
+                "player_submitted",
+                roomId
+            );
+
+        }
 
     };
 
@@ -127,6 +258,7 @@ int main() {
 
 
     return (
+
         <div className="arena-room-page">
 
             {/* HEADER */}
@@ -187,6 +319,7 @@ int main() {
                     </div>
 
                     <div>
+
                         <strong>
                             Player 1
                         </strong>
@@ -194,6 +327,7 @@ int main() {
                         <span>
                             You
                         </span>
+
                     </div>
 
                 </div>
@@ -211,18 +345,39 @@ int main() {
                     </div>
 
                     <div>
+
                         <strong>
                             Player 2
                         </strong>
 
                         <span>
-                            Opponent
+                            {opponentStatus}
                         </span>
+
                     </div>
 
                 </div>
 
             </section>
+
+
+            {/* BATTLE STATUS */}
+
+            <div className="arena-battle-status">
+
+                <span>
+                    Players: {playerCount}/2
+                </span>
+
+
+                <span>
+                    {opponentSubmitted
+                        ? "✓ Opponent submitted"
+                        : opponentStatus}
+
+                </span>
+
+            </div>
 
 
             {/* MAIN */}
@@ -234,7 +389,9 @@ int main() {
                 <section className="arena-problem-panel">
 
                     {problem ? (
+
                         <>
+
                             <div className="problem-header">
 
                                 <div>
@@ -248,6 +405,7 @@ int main() {
                                     </h1>
 
                                 </div>
+
 
                                 <span
                                     className={`difficulty ${problem.difficulty?.toLowerCase()}`}
@@ -266,42 +424,61 @@ int main() {
 
 
                                 {problem.examples?.length > 0 && (
+
                                     <div className="example-box">
 
                                         <h3>
                                             Example
                                         </h3>
 
+
                                         <div>
+
                                             <strong>
                                                 Input:
                                             </strong>
 
                                             <pre>
-                                                {problem.examples[0].input}
+                                                {
+                                                    problem
+                                                        .examples[0]
+                                                        .input
+                                                }
                                             </pre>
+
                                         </div>
 
+
                                         <div>
+
                                             <strong>
                                                 Output:
                                             </strong>
 
                                             <pre>
-                                                {problem.examples[0].output}
+                                                {
+                                                    problem
+                                                        .examples[0]
+                                                        .output
+                                                }
                                             </pre>
+
                                         </div>
 
                                     </div>
+
                                 )}
 
                             </div>
 
                         </>
+
                     ) : (
+
                         <div className="no-problem">
                             No problem available.
                         </div>
+
                     )}
 
                 </section>
@@ -327,7 +504,9 @@ int main() {
                     <textarea
                         value={code}
                         onChange={(event) =>
-                            setCode(event.target.value)
+                            setCode(
+                                event.target.value
+                            )
                         }
                         spellCheck="false"
                         className="arena-code-editor"
@@ -337,9 +516,11 @@ int main() {
                     <div className="editor-footer">
 
                         <span>
+
                             {submitted
                                 ? "✓ Submission received"
                                 : "Ready to submit"}
+
                         </span>
 
 
@@ -348,9 +529,11 @@ int main() {
                             onClick={handleSubmit}
                             disabled={submitted}
                         >
+
                             {submitted
                                 ? "Submitted"
                                 : "Submit Solution"}
+
                         </button>
 
                     </div>
@@ -360,7 +543,9 @@ int main() {
             </main>
 
         </div>
+
     );
+
 }
 
 export default ArenaRoom;

@@ -9,6 +9,8 @@ const setupArenaSocket = (io) => {
         );
 
 
+        /* FIND MATCH */
+
         socket.on("find_match", () => {
 
             console.log(
@@ -16,17 +18,15 @@ const setupArenaSocket = (io) => {
             );
 
 
-            // Prevent duplicate queue entries
-            const alreadyWaiting = waitingPlayers.includes(
-                socket.id
-            );
+            const alreadyWaiting =
+                waitingPlayers.includes(socket.id);
+
 
             if (alreadyWaiting) {
                 return;
             }
 
 
-            // If another player is waiting
             if (waitingPlayers.length > 0) {
 
                 const opponentId =
@@ -38,6 +38,7 @@ const setupArenaSocket = (io) => {
 
 
                 socket.join(roomId);
+
 
                 const opponentSocket =
                     io.sockets.sockets.get(opponentId);
@@ -89,6 +90,8 @@ const setupArenaSocket = (io) => {
         });
 
 
+        /* CANCEL MATCHMAKING */
+
         socket.on("cancel_matchmaking", () => {
 
             const index =
@@ -111,6 +114,61 @@ const setupArenaSocket = (io) => {
 
         });
 
+
+        /* JOIN ARENA ROOM */
+
+        socket.on("join_arena", (roomId) => {
+
+            socket.join(roomId);
+
+
+            const room =
+                io.sockets.adapter.rooms.get(roomId);
+
+
+            const playerCount =
+                room ? room.size : 0;
+
+
+            io.to(roomId).emit(
+                "arena_players",
+                {
+                    count: playerCount
+                }
+            );
+
+
+            if (playerCount >= 2) {
+
+                io.to(roomId).emit(
+                    "opponent_connected"
+                );
+
+            }
+
+
+            console.log(
+                `${socket.id} joined arena ${roomId}`
+            );
+
+        });
+
+
+        /* PLAYER STATUS */
+
+        socket.on(
+            "player_submitted",
+            (roomId) => {
+
+                socket.to(roomId).emit(
+                    "opponent_submitted"
+                );
+
+            }
+        );
+
+
+        /* DISCONNECT */
 
         socket.on("disconnect", () => {
 
