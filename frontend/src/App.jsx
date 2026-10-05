@@ -12,6 +12,7 @@ import ProblemDetails from "./pages/ProblemDetails";
 import SubmissionHistory from "./pages/SubmissionHistory";
 import SubmissionDetails from "./pages/SubmissionDetails";
 import Arena from "./pages/Arena";
+import ArenaRoom from "./pages/ArenaRoom";
 
 function LandingPage() {
     return (
@@ -219,6 +220,7 @@ function App() {
                 element={<ProblemDetails />}
             />
             <Route path="/arena" element={<Arena />} />
+            <Route path="/arena/:roomId" element={<ArenaRoom />} />
             <Route
               path="/submissions"
                   element={<SubmissionHistory />}
