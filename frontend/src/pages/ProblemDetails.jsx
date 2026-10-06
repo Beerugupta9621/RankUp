@@ -698,6 +698,64 @@ function ProblemDetails() {
 
                 </section>
 
+                {/* WING EDITORIAL */}
+
+<section className="editorial-section">
+
+    <div className="editorial-header">
+        <span>WING EDITORIAL</span>
+        <h2>Need a little help?</h2>
+        <p>
+            Reveal hints progressively before looking
+            at the complete solution.
+        </p>
+    </div>
+
+    <details className="editorial-item">
+        <summary>
+            💡 Hint 1
+        </summary>
+
+        <div className="editorial-content">
+            {problem.hint1 || "No hint available yet."}
+        </div>
+    </details>
+
+
+    <details className="editorial-item">
+        <summary>
+            💡 Hint 2
+        </summary>
+
+        <div className="editorial-content">
+            {problem.hint2 || "No hint available yet."}
+        </div>
+    </details>
+
+
+    <details className="editorial-item">
+        <summary>
+            💡 Hint 3
+        </summary>
+
+        <div className="editorial-content">
+            {problem.hint3 || "No hint available yet."}
+        </div>
+    </details>
+
+
+    <details className="editorial-item solution-item">
+        <summary>
+            🔓 Full Solution
+        </summary>
+
+        <div className="editorial-content solution-content">
+            {problem.editorial || "No editorial available yet."}
+        </div>
+    </details>
+
+</section>
+
             </main>
 
         </div>

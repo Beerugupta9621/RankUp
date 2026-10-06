@@ -382,3 +382,101 @@
     font-size: 13px;
     font-weight: 600;
 }
+
+/* WING EDITORIAL */
+
+.editorial-section {
+    margin-top: 35px;
+}
+
+.editorial-header {
+    margin-bottom: 18px;
+}
+
+.editorial-header span {
+    color: #a78bfa;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.editorial-header h2 {
+    margin: 6px 0 5px;
+    font-size: 22px;
+}
+
+.editorial-header p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 13px;
+}
+
+.editorial-item {
+    margin-bottom: 10px;
+
+    border: 1px solid
+        rgba(255, 255, 255, 0.08);
+
+    border-radius: 12px;
+
+    background:
+        rgba(255, 255, 255, 0.035);
+
+    overflow: hidden;
+}
+
+.editorial-item summary {
+    padding: 17px 20px;
+
+    cursor: pointer;
+
+    color: #e9e5ff;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    list-style: none;
+}
+
+.editorial-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.editorial-item summary::after {
+    content: "+";
+
+    float: right;
+
+    color: #a78bfa;
+
+    font-size: 18px;
+}
+
+.editorial-item[open] summary::after {
+    content: "−";
+}
+
+.editorial-content {
+    padding: 0 20px 18px;
+
+    color:
+        rgba(255, 255, 255, 0.65);
+
+    font-size: 13px;
+
+    line-height: 1.7;
+
+    white-space: pre-wrap;
+}
+
+.solution-item {
+    border-color:
+        rgba(167, 139, 250, 0.2);
+}
+
+.solution-content {
+    color:
+        rgba(255, 255, 255, 0.75);
+
+    font-family: monospace;
+}

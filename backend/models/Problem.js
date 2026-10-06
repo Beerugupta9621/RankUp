@@ -81,6 +81,28 @@ const problemSchema = new mongoose.Schema(
             }
         ],
 
+        /* WING EDITORIAL */
+
+        hint1: {
+            type: String,
+            default: ""
+        },
+
+        hint2: {
+            type: String,
+            default: ""
+        },
+
+        hint3: {
+            type: String,
+            default: ""
+        },
+
+        editorial: {
+            type: String,
+            default: ""
+        },
+
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
