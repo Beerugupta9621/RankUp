@@ -10,16 +10,59 @@ function Contests() {
     const [contests, setContests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [currentTime, setCurrentTime] = useState(
+        Math.floor(Date.now() / 1000)
+    );
+
+    /* LIVE CLOCK */
+    useEffect(() => {
+
+        const timer = setInterval(() => {
+
+            setCurrentTime(
+                Math.floor(Date.now() / 1000)
+            );
+
+        }, 1000);
+
+        return () => clearInterval(timer);
+
+    }, []);
 
 
+    /* FETCH CONTESTS */
     useEffect(() => {
 
         const fetchContests = async () => {
 
             try {
 
-                const response =
-                    await api.get("/auth/codeforces/contests");
+                setLoading(true);
+                setError("");
+
+                const token =
+                    localStorage.getItem("accessToken");
+
+                if (!token) {
+
+                    setError(
+                        "Please login to view contests."
+                    );
+
+                    setLoading(false);
+
+                    return;
+                }
+
+                const response = await api.get(
+                    "/auth/codeforces/contests",
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${token}`
+                        }
+                    }
+                );
 
                 setContests(
                     response.data.contests || []
@@ -32,7 +75,13 @@ function Contests() {
                     error
                 );
 
+                console.error(
+                    "Contest response:",
+                    error.response?.data
+                );
+
                 setError(
+                    error.response?.data?.message ||
                     "Unable to load Codeforces contests."
                 );
 
@@ -41,7 +90,6 @@ function Contests() {
                 setLoading(false);
 
             }
-
         };
 
         fetchContests();
@@ -49,6 +97,7 @@ function Contests() {
     }, []);
 
 
+    /* CONTEST DATE */
     const getContestDate = (timestamp) => {
 
         if (!timestamp) {
@@ -62,8 +111,57 @@ function Contests() {
     };
 
 
+    /* COUNTDOWN */
+    const getCountdown = (timestamp) => {
+
+        if (!timestamp) {
+            return "Time unavailable";
+        }
+
+        const difference =
+            timestamp - currentTime;
+
+        if (difference <= 0) {
+            return "Starting now";
+        }
+
+        const days =
+            Math.floor(
+                difference / (60 * 60 * 24)
+            );
+
+        const hours =
+            Math.floor(
+                (difference % (60 * 60 * 24)) /
+                (60 * 60)
+            );
+
+        const minutes =
+            Math.floor(
+                (difference % (60 * 60)) /
+                60
+            );
+
+        const seconds =
+            difference % 60;
+
+
+        if (days > 0) {
+
+            return `${days}d ${hours}h ${minutes}m`;
+
+        }
+
+        return `${hours}h ${minutes}m ${seconds}s`;
+
+    };
+
+
     return (
+
         <div className="contests-page">
+
+            {/* NAVBAR */}
 
             <nav className="contests-navbar">
 
@@ -71,183 +169,214 @@ function Contests() {
                     className="contests-logo"
                     onClick={() => navigate("/dashboard")}
                 >
-                    RankUp
+                    Rank<span>Up</span>
                 </div>
 
-                <div className="contests-nav-links">
-
-                    <button
-                        onClick={() => navigate("/dashboard")}
-                    >
-                        Dashboard
-                    </button>
-
-                    <button
-                        onClick={() => navigate("/problems")}
-                    >
-                        Problems
-                    </button>
-
-                    <button
-                        onClick={() => navigate("/leaderboard")}
-                    >
-                        Leaderboard
-                    </button>
-
-                </div>
+                <button
+                    className="back-button"
+                    onClick={() => navigate("/dashboard")}
+                >
+                    ← Dashboard
+                </button>
 
             </nav>
 
 
-            <main className="contests-container">
+            {/* HERO */}
 
-                <section className="contests-hero">
+            <section className="contests-hero">
 
-                    <span>
-                        CONTEST HUB
-                    </span>
+                <p className="contest-label">
+                    CONTEST HUB
+                </p>
 
-                    <h1>
-                        Compete. Climb. Conquer.
-                    </h1>
+                <h1>
+                    Compete. Climb. Conquer.
+                </h1>
 
-                    <p>
-                        Stay updated with upcoming
-                        Codeforces contests and never
-                        miss your next challenge.
-                    </p>
+                <p>
+                    Stay updated with upcoming
+                    Codeforces contests and never
+                    miss your next challenge.
+                </p>
 
-                </section>
+            </section>
 
 
-                <section className="contests-card">
+            {/* CONTESTS */}
 
-                    <div className="contests-card-header">
+            <section className="contests-section">
 
-                        <div>
+                <div className="section-heading">
 
-                            <span>
-                                UPCOMING CONTESTS
-                            </span>
+                    <div>
 
-                            <h2>
-                                Codeforces Schedule
-                            </h2>
+                        <p className="contest-label">
+                            UPCOMING CONTESTS
+                        </p>
 
-                        </div>
-
-                        <div className="live-indicator">
-                            <span></span>
-                            LIVE DATA
-                        </div>
+                        <h2>
+                            Codeforces Schedule
+                        </h2>
 
                     </div>
 
+                    <span className="live-badge">
+                        ● LIVE DATA
+                    </span>
 
-                    {loading && (
-
-                        <div className="contest-loading">
-                            Loading contests...
-                        </div>
-
-                    )}
+                </div>
 
 
-                    {!loading && error && (
+                {/* LOADING */}
 
-                        <div className="contest-error">
+                {loading && (
+
+                    <div className="contest-state">
+
+                        <div className="loader"></div>
+
+                        <p>
+                            Loading upcoming contests...
+                        </p>
+
+                    </div>
+
+                )}
+
+
+                {/* ERROR */}
+
+                {!loading && error && (
+
+                    <div className="contest-state error-state">
+
+                        <h3>
+                            Unable to load contests
+                        </h3>
+
+                        <p>
                             {error}
+                        </p>
+
+                        <button
+                            onClick={() =>
+                                window.location.reload()
+                            }
+                        >
+                            Retry
+                        </button>
+
+                    </div>
+
+                )}
+
+
+                {/* EMPTY */}
+
+                {!loading &&
+                    !error &&
+                    contests.length === 0 && (
+
+                        <div className="contest-state">
+
+                            <h3>
+                                No upcoming contests
+                            </h3>
+
+                            <p>
+                                Check back later for
+                                new Codeforces contests.
+                            </p>
+
                         </div>
 
                     )}
 
 
-                    {!loading &&
-                        !error &&
-                        contests.length === 0 && (
+                {/* CONTEST LIST */}
 
-                            <div className="contest-empty">
-                                No upcoming contests found.
-                            </div>
+                {!loading &&
+                    !error &&
+                    contests.length > 0 && (
 
-                        )}
+                        <div className="contest-list">
 
+                            {contests.map((contest) => (
 
-                    {!loading &&
-                        !error &&
-                        contests.length > 0 && (
+                                <div
+                                    className="contest-card"
+                                    key={contest.id}
+                                >
 
-                            <div className="contest-list">
+                                    <div className="contest-info">
 
-                                {contests.map(
-                                    (contest) => (
+                                        <span className="contest-type">
+                                            {contest.type || "CONTEST"}
+                                        </span>
 
-                                        <div
-                                            className="contest-item"
-                                            key={contest.id}
-                                        >
+                                        <h3>
+                                            {contest.name}
+                                        </h3>
 
-                                            <div className="contest-main">
+                                        <div className="contest-date">
 
-                                                <div className="contest-icon">
-                                                    CF
-                                                </div>
+                                            <small>
+                                                STARTS
+                                            </small>
 
-                                                <div>
-
-                                                    <h3>
-                                                        {contest.name}
-                                                    </h3>
-
-                                                    <p>
-                                                        {contest.type ||
-                                                            "Codeforces Contest"}
-                                                    </p>
-
-                                                </div>
-
-                                            </div>
-
-
-                                            <div className="contest-date">
-
-                                                <span>
-                                                    STARTS
-                                                </span>
-
-                                                <strong>
-                                                    {getContestDate(
-                                                        contest.startTimeSeconds
-                                                    )}
-                                                </strong>
-
-                                            </div>
-
-
-                                            <a
-                                                href={`https://codeforces.com/contest/${contest.id}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="contest-button"
-                                            >
-                                                View Contest →
-                                            </a>
+                                            <strong>
+                                                {getContestDate(
+                                                    contest.startTimeSeconds
+                                                )}
+                                            </strong>
 
                                         </div>
 
-                                    )
-                                )}
+                                    </div>
 
-                            </div>
 
-                        )}
+                                    <div className="contest-countdown">
 
-                </section>
+                                        <small>
+                                            STARTS IN
+                                        </small>
 
-            </main>
+                                        <strong>
+                                            {getCountdown(
+                                                contest.startTimeSeconds
+                                            )}
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div className="contest-action">
+
+                                        <a
+                                            href="https://codeforces.com/contests"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            View Contest →
+                                        </a>
+
+                                    </div>
+
+                                </div>
+
+                            ))}
+
+                        </div>
+
+                    )}
+
+            </section>
 
         </div>
+
     );
+
 }
 
 export default Contests;
