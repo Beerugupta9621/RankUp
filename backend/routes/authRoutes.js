@@ -94,6 +94,56 @@ router.put("/codeforces", protect, async (req, res) => {
         });
     }
 });
+
+/* LEADERBOARD */
+
+router.get("/leaderboard", protect, async (req, res) => {
+
+    try {
+
+        const users = await User.find()
+            .select(
+                "username eloRating problemsSolved codeforcesRating codeforcesHandle"
+            )
+            .sort({
+                eloRating: -1,
+                problemsSolved: -1,
+                codeforcesRating: -1
+            })
+            .limit(50);
+
+        const leaderboard = users.map(
+            (user, index) => ({
+                rank: index + 1,
+                username: user.username,
+                eloRating: user.eloRating ?? 1000,
+                problemsSolved: user.problemsSolved ?? 0,
+                codeforcesRating:
+                    user.codeforcesRating ?? 0,
+                codeforcesHandle:
+                    user.codeforcesHandle || ""
+            })
+        );
+
+        res.status(200).json({
+            leaderboard
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Leaderboard error:",
+            error.message
+        );
+
+        res.status(500).json({
+            message:
+                "Server error while fetching leaderboard"
+        });
+
+    }
+
+});
 module.exports = router;
 
 

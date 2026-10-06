@@ -1,0 +1,459 @@
+.leaderboard-page {
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(124, 58, 237, 0.18),
+            transparent 35%
+        ),
+        #080812;
+
+    color: white;
+}
+
+
+/* NAVBAR */
+
+.leaderboard-nav {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    background: rgba(8, 8, 18, 0.85);
+
+    backdrop-filter: blur(18px);
+}
+
+.leaderboard-nav-inner {
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding: 18px 24px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.leaderboard-logo {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    cursor: pointer;
+
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.leaderboard-logo-icon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: linear-gradient(
+        135deg,
+        #7c3aed,
+        #4f46e5
+    );
+
+    font-weight: 900;
+}
+
+.leaderboard-back {
+    padding: 9px 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    border-radius: 9px;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    color: rgba(255, 255, 255, 0.8);
+
+    cursor: pointer;
+}
+
+
+/* MAIN */
+
+.leaderboard-main {
+    max-width: 1100px;
+
+    margin: 0 auto;
+
+    padding: 60px 24px 80px;
+}
+
+
+/* HERO */
+
+.leaderboard-hero {
+    text-align: center;
+
+    margin-bottom: 45px;
+}
+
+.leaderboard-label {
+    color: #a78bfa;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+    margin-bottom: 12px;
+}
+
+.leaderboard-hero h1 {
+    margin: 0;
+
+    font-size: 46px;
+
+    line-height: 1.1;
+
+    font-weight: 800;
+}
+
+.leaderboard-hero h1 span {
+    color: #a78bfa;
+}
+
+.leaderboard-hero p {
+    max-width: 650px;
+
+    margin: 18px auto 0;
+
+    color: rgba(255, 255, 255, 0.55);
+
+    line-height: 1.7;
+}
+
+
+/* TOP PLAYERS */
+
+.top-players {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 18px;
+
+    margin-bottom: 35px;
+}
+
+.top-player {
+    padding: 25px;
+
+    text-align: center;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    backdrop-filter: blur(16px);
+}
+
+.top-player.first {
+    border-color:
+        rgba(167, 139, 250, 0.4);
+
+    background:
+        rgba(124, 58, 237, 0.1);
+}
+
+.top-rank {
+    font-size: 28px;
+
+    margin-bottom: 12px;
+}
+
+.top-avatar {
+    width: 54px;
+    height: 54px;
+
+    margin: 0 auto 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(124, 58, 237, 0.25);
+
+    color: #c4b5fd;
+
+    font-size: 20px;
+
+    font-weight: 800;
+}
+
+.top-player h2 {
+    margin: 0 0 10px;
+
+    font-size: 18px;
+}
+
+.top-elo {
+    color: #a78bfa;
+
+    font-size: 25px;
+
+    font-weight: 800;
+}
+
+.top-player > span {
+    color: rgba(255, 255, 255, 0.4);
+
+    font-size: 11px;
+}
+
+
+/* CARD */
+
+.leaderboard-card {
+    overflow: hidden;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, 0.035);
+
+    backdrop-filter: blur(18px);
+}
+
+.leaderboard-card-header {
+    padding: 24px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.07);
+}
+
+.leaderboard-card-header span {
+    color: #a78bfa;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+}
+
+.leaderboard-card-header h2 {
+    margin: 7px 0 0;
+
+    font-size: 21px;
+}
+
+.player-count {
+    padding: 7px 12px;
+
+    border-radius: 8px;
+
+    background: rgba(124, 58, 237, 0.1);
+
+    color: #c4b5fd;
+
+    font-size: 12px;
+}
+
+
+/* TABLE */
+
+.leaderboard-table-wrapper {
+    overflow-x: auto;
+}
+
+.leaderboard-table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+.leaderboard-table th {
+    padding: 15px 20px;
+
+    text-align: left;
+
+    color: rgba(255, 255, 255, 0.4);
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+}
+
+.leaderboard-table td {
+    padding: 16px 20px;
+
+    border-top:
+        1px solid rgba(255, 255, 255, 0.05);
+
+    color: rgba(255, 255, 255, 0.7);
+
+    font-size: 14px;
+}
+
+.leaderboard-table tbody tr {
+    transition: background 0.2s;
+}
+
+.leaderboard-table tbody tr:hover {
+    background:
+        rgba(124, 58, 237, 0.05);
+}
+
+.leaderboard-table .top-row {
+    background:
+        rgba(124, 58, 237, 0.025);
+}
+
+.rank-number {
+    font-weight: 700;
+
+    color: rgba(255, 255, 255, 0.65);
+}
+
+
+/* PLAYER */
+
+.player-cell {
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+}
+
+.player-avatar {
+    width: 36px;
+    height: 36px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(124, 58, 237, 0.18);
+
+    color: #c4b5fd;
+
+    font-size: 13px;
+
+    font-weight: 800;
+}
+
+.player-cell strong {
+    display: block;
+
+    color: white;
+}
+
+.player-cell span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: rgba(255, 255, 255, 0.35);
+
+    font-size: 11px;
+}
+
+.elo-value {
+    color: #a78bfa;
+}
+
+
+/* ERROR */
+
+.leaderboard-error {
+    margin-bottom: 20px;
+
+    padding: 12px 15px;
+
+    border-radius: 9px;
+
+    background:
+        rgba(239, 68, 68, 0.1);
+
+    color: #f87171;
+}
+
+
+/* EMPTY */
+
+.empty-leaderboard {
+    padding: 50px;
+
+    text-align: center;
+
+    color: rgba(255, 255, 255, 0.4);
+}
+
+
+/* LOADING */
+
+.leaderboard-loading {
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #080812;
+
+    color: rgba(255, 255, 255, 0.6);
+
+    font-size: 18px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 750px) {
+
+    .leaderboard-main {
+        padding: 40px 15px 60px;
+    }
+
+    .leaderboard-hero h1 {
+        font-size: 34px;
+    }
+
+    .top-players {
+        grid-template-columns: 1fr;
+    }
+
+    .leaderboard-card-header {
+        align-items: flex-start;
+
+        gap: 15px;
+
+        flex-direction: column;
+    }
+
+}
