@@ -686,92 +686,103 @@ function Dashboard() {
 
 </section>
 
-                {/* QUICK ACTIONS */}
+               {/* QUICK ACTIONS */}
 
-                <section>
+<section className="quick-actions-section">
 
-                    <h2 className="quick-title">
-                        Quick Actions
-                    </h2>
+    <div className="section-heading">
+        <span>QUICK ACTIONS</span>
+        <h2>Jump back into RankUp</h2>
+    </div>
 
+    <div className="quick-actions-grid">
 
-                    <div className="actions-grid">
+        <button
+            className="quick-action-card"
+            onClick={() => navigate("/problems")}
+        >
+            <div className="quick-action-icon">
+                ⚡
+            </div>
 
+            <div>
+                <h3>Solve Problems</h3>
+                <p>
+                    Practice coding problems and improve your skills.
+                </p>
+            </div>
 
-                        <button
-                            className="action-card"
-                            onClick={() =>
-                                navigate("/problems")
-                            }
-                        >
-
-                            <div className="action-icon">
-                                💻
-                            </div>
-
-                            <div className="action-title">
-                                Solve Problems
-                            </div>
-
-                            <div className="action-description">
-                                Practice competitive programming
-                                problems and improve your skills.
-                            </div>
-
-                        </button>
+            <span className="quick-action-arrow">
+                →
+            </span>
+        </button>
 
 
+        <button
+            className="quick-action-card"
+            onClick={() => navigate("/arena")}
+        >
+            <div className="quick-action-icon">
+                ⚔
+            </div>
 
-                        <button
-                            className="action-card"
-                            onClick={() =>
-                                navigate("/arena")
-                            }
-                        >
+            <div>
+                <h3>CodeArena</h3>
+                <p>
+                    Challenge another programmer in a live battle.
+                </p>
+            </div>
 
-                            <div className="action-icon">
-                                ⚔️
-                            </div>
-
-                            <div className="action-title">
-                                CodeArena
-                            </div>
-
-                            <div className="action-description">
-                                Challenge other programmers
-                                in real-time 1v1 battles.
-                            </div>
-
-                        </button>
+            <span className="quick-action-arrow">
+                →
+            </span>
+        </button>
 
 
+        <button
+            className="quick-action-card"
+            onClick={() => navigate("/leaderboard")}
+        >
+            <div className="quick-action-icon">
+                🏆
+            </div>
 
-                        <button
-                            className="action-card"
-                            onClick={() =>
-                                navigate("/leaderboard")
-                            }
-                        >
+            <div>
+                <h3>Leaderboard</h3>
+                <p>
+                    See how you rank against the community.
+                </p>
+            </div>
 
-                            <div className="action-icon">
-                                🏆
-                            </div>
-
-                            <div className="action-title">
-                                Leaderboard
-                            </div>
-
-                            <div className="action-description">
-                                Track your ranking against
-                                other competitive programmers.
-                            </div>
-
-                        </button>
+            <span className="quick-action-arrow">
+                →
+            </span>
+        </button>
 
 
-                    </div>
+        <button
+            className="quick-action-card"
+            onClick={() => navigate("/community")}
+        >
+            <div className="quick-action-icon">
+                💬
+            </div>
 
-                </section>
+            <div>
+                <h3>Community</h3>
+                <p>
+                    Join discussions and share your ideas.
+                </p>
+            </div>
+
+            <span className="quick-action-arrow">
+                →
+            </span>
+        </button>
+
+    </div>
+
+</section> 
 
 
             </main>
