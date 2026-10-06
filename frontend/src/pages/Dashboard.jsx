@@ -779,6 +779,25 @@ function Dashboard() {
                 →
             </span>
         </button>
+        <button
+    className="quick-action-card"
+    onClick={() => navigate("/contests")}
+>
+    <div className="quick-action-icon">
+        🏁
+    </div>
+
+    <div>
+        <h3>Contest Hub</h3>
+        <p>
+            Track upcoming Codeforces contests and compete.
+        </p>
+    </div>
+
+    <span className="quick-action-arrow">
+        →
+    </span>
+</button>
 
     </div>
 
