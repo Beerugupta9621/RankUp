@@ -13,6 +13,7 @@ import SubmissionHistory from "./pages/SubmissionHistory";
 import SubmissionDetails from "./pages/SubmissionDetails";
 import Arena from "./pages/Arena";
 import ArenaRoom from "./pages/ArenaRoom";
+import Community from "./pages/Community";
 
 function LandingPage() {
     return (
@@ -229,6 +230,10 @@ function App() {
              path="/submissions/:id"
               element={<SubmissionDetails />}
                 />
+                <Route
+    path="/community"
+    element={<Community />}
+/>
 
         </Routes>
     );
