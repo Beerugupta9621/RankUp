@@ -616,7 +616,75 @@ function Dashboard() {
 
                 </section>
 
+                {/* CODEFORCES PROFILE */}
 
+<section className="codeforces-section">
+
+    <div className="codeforces-card">
+
+        <div className="codeforces-info">
+
+            <div className="codeforces-icon">
+                CF
+            </div>
+
+            <div>
+
+                <div className="codeforces-label">
+                    CODEFORCES PROFILE
+                </div>
+
+                {user.codeforcesHandle ? (
+
+                    <>
+                        <h2>
+                            @{user.codeforcesHandle}
+                        </h2>
+
+                        <p>
+                            Rating:{" "}
+                            <strong>
+                                {user.codeforcesRating || 0}
+                            </strong>
+                        </p>
+                    </>
+
+                ) : (
+
+                    <>
+                        <h2>
+                            No Codeforces account linked
+                        </h2>
+
+                        <p>
+                            Link your Codeforces handle
+                            to track your rating.
+                        </p>
+                    </>
+
+                )}
+
+            </div>
+
+        </div>
+
+
+        {user.codeforcesHandle && (
+
+            <a
+                href={`https://codeforces.com/profile/${user.codeforcesHandle}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="codeforces-button"
+            >
+                View Profile →
+            </a>
+
+        )}
+
+    </div>
+
+</section>
 
                 {/* QUICK ACTIONS */}
 
