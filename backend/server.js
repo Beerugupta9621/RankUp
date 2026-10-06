@@ -10,6 +10,7 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const problemRoutes = require("./routes/problemRoutes");
 const submissionRoutes = require("./routes/submissionRoutes");
+const communityRoutes = require("./routes/communityRoutes");
 
 const setupArenaSocket = require("./socket/arenaSocket");
 
@@ -63,6 +64,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/problems", problemRoutes);
 
 app.use("/api/submissions", submissionRoutes);
+
+app.use("/api/community", communityRoutes);
 
 
 /* START SERVER */
