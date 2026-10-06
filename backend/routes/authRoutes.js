@@ -144,6 +144,70 @@ router.get("/leaderboard", protect, async (req, res) => {
     }
 
 });
+
+/* GET CODEFORCES CONTESTS */
+
+router.get(
+    "/codeforces/contests",
+    protect,
+    async (req, res) => {
+
+        try {
+
+            const response =
+                await fetch(
+                    "https://codeforces.com/api/contest.list"
+                );
+
+            const data =
+                await response.json();
+
+
+            if (data.status !== "OK") {
+
+                return res.status(500).json({
+                    message:
+                        "Unable to fetch Codeforces contests"
+                });
+
+            }
+
+
+            const upcomingContests =
+                data.result
+                    .filter(
+                        (contest) =>
+                            contest.phase === "BEFORE"
+                    )
+                    .sort(
+                        (a, b) =>
+                            a.startTimeSeconds -
+                            b.startTimeSeconds
+                    )
+                    .slice(0, 10);
+
+
+            res.status(200).json({
+                contests:
+                    upcomingContests
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Codeforces contest error:",
+                error.message
+            );
+
+            res.status(500).json({
+                message:
+                    "Server error while fetching contests"
+            });
+
+        }
+
+    }
+);
 module.exports = router;
 
 

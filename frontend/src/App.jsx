@@ -15,6 +15,7 @@ import Arena from "./pages/Arena";
 import ArenaRoom from "./pages/ArenaRoom";
 import Community from "./pages/Community";
 import Leaderboard from "./pages/Leaderboard";
+import Contests from "./pages/Contests";
 
 function LandingPage() {
     return (
@@ -239,6 +240,7 @@ function App() {
     path="/leaderboard"
     element={<Leaderboard />}
 />
+    <Route path="/contests" element={<Contests />} />
 
         </Routes>
     );
