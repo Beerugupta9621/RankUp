@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import api from "../services/api";
 import "./Community.css";
-
 
 function Community() {
 
@@ -19,114 +17,148 @@ function Community() {
     const [creating, setCreating] = useState(false);
     const [error, setError] = useState("");
 
+    const [comments, setComments] = useState({});
+    const [commentInputs, setCommentInputs] = useState({});
+    const [commentLoading, setCommentLoading] = useState({});
+    const [commentCreating, setCommentCreating] = useState({});
 
-    const token =
-        localStorage.getItem("accessToken");
 
+    /* GET TOKEN */
+
+    const getAuthConfig = () => {
+
+        const token =
+            localStorage.getItem("accessToken");
+
+        if (!token) {
+
+            navigate("/login");
+
+            return null;
+
+        }
+
+        return {
+            headers: {
+                Authorization:
+                    `Bearer ${token}`
+            }
+        };
+
+    };
+
+
+    const currentUser =
+        JSON.parse(
+            localStorage.getItem("user") || "null"
+        );
+
+
+    /* FETCH POSTS */
 
     useEffect(() => {
 
-        if (!token) {
-            navigate("/login");
-            return;
-        }
+        const fetchPosts = async () => {
+
+            try {
+
+                const config =
+                    getAuthConfig();
+
+                if (!config) {
+                    return;
+                }
+
+                const response =
+                    await api.get(
+                        "/community",
+                        config
+                    );
+
+                setPosts(
+                    response.data.posts || []
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Community fetch error:",
+                    error
+                );
+
+                console.error(
+                    "Response:",
+                    error.response?.data
+                );
+
+                setError(
+                    error.response?.data?.message ||
+                    "Unable to load community posts."
+                );
+
+            } finally {
+
+                setLoading(false);
+
+            }
+
+        };
 
         fetchPosts();
 
     }, []);
 
 
-    const fetchPosts = async () => {
+    /* CREATE POST */
 
-        try {
+    const handleCreatePost = async (event) => {
 
-            const response = await api.get(
-                "/community",
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`
-                    }
-                }
-            );
-
-            setPosts(
-                response.data.posts || []
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Community error:",
-                error
-            );
-
-            setError(
-                "Failed to load community posts"
-            );
-
-        } finally {
-
-            setLoading(false);
-
-        }
-
-    };
-
-
-    const handleCreatePost = async (e) => {
-
-        e.preventDefault();
+        event.preventDefault();
 
         if (!title.trim() || !content.trim()) {
 
             setError(
-                "Title and content are required"
+                "Title and content are required."
             );
 
             return;
+
         }
-
-
-        setCreating(true);
-        setError("");
-
 
         try {
 
-            const tagList =
-                tags
-                    .split(",")
-                    .map((tag) => tag.trim())
-                    .filter(Boolean);
+            setCreating(true);
+            setError("");
 
+            const config =
+                getAuthConfig();
 
-            const response = await api.post(
-                "/community",
-                {
-                    title: title.trim(),
-                    content: content.trim(),
-                    tags: tagList
-                },
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`
-                    }
-                }
-            );
+            if (!config) {
+                return;
+            }
 
+            const response =
+                await api.post(
+                    "/community",
+                    {
+                        title: title.trim(),
+                        content: content.trim(),
+                        tags: tags
+                            .split(",")
+                            .map((tag) => tag.trim())
+                            .filter(Boolean)
+                    },
+                    config
+                );
 
             setPosts((previousPosts) => [
                 response.data.post,
                 ...previousPosts
             ]);
 
-
             setTitle("");
             setContent("");
             setTags("");
-
 
         } catch (error) {
 
@@ -137,7 +169,7 @@ function Community() {
 
             setError(
                 error.response?.data?.message ||
-                "Failed to create post"
+                "Unable to create post."
             );
 
         } finally {
@@ -149,21 +181,25 @@ function Community() {
     };
 
 
+    /* LIKE / UNLIKE */
+
     const handleLike = async (postId) => {
 
         try {
 
-            const response = await api.put(
-                `/community/${postId}/like`,
-                {},
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`
-                    }
-                }
-            );
+            const config =
+                getAuthConfig();
 
+            if (!config) {
+                return;
+            }
+
+            const response =
+                await api.put(
+                    `/community/${postId}/like`,
+                    {},
+                    config
+                );
 
             setPosts((previousPosts) =>
                 previousPosts.map((post) => {
@@ -172,45 +208,31 @@ function Community() {
                         return post;
                     }
 
-
-                    const currentUser =
-                        JSON.parse(
-                            localStorage.getItem(
-                                "user"
-                            ) || "{}"
-                        );
-
-
-                    let likes =
+                    const currentLikes =
                         post.likes || [];
-
 
                     if (response.data.liked) {
 
-                        likes = [
-                            ...likes,
-                            currentUser.id
-                        ];
-
-                    } else {
-
-                        likes =
-                            likes.filter(
-                                (id) =>
-                                    id !== currentUser.id
-                            );
+                        return {
+                            ...post,
+                            likes: [
+                                ...currentLikes,
+                                currentUser?.id
+                            ]
+                        };
 
                     }
 
-
                     return {
                         ...post,
-                        likes
+                        likes: currentLikes.filter(
+                            (id) =>
+                                id !== currentUser?.id
+                        )
                     };
 
                 })
             );
-
 
         } catch (error) {
 
@@ -224,31 +246,32 @@ function Community() {
     };
 
 
-    const handleDelete = async (postId) => {
+    /* DELETE POST */
+
+    const handleDeletePost = async (postId) => {
 
         const confirmed =
             window.confirm(
                 "Delete this post?"
             );
 
-
         if (!confirmed) {
             return;
         }
 
-
         try {
+
+            const config =
+                getAuthConfig();
+
+            if (!config) {
+                return;
+            }
 
             await api.delete(
                 `/community/${postId}`,
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${token}`
-                    }
-                }
+                config
             );
-
 
             setPosts((previousPosts) =>
                 previousPosts.filter(
@@ -257,12 +280,28 @@ function Community() {
                 )
             );
 
+            setComments((previous) => {
+
+                const updated = {
+                    ...previous
+                };
+
+                delete updated[postId];
+
+                return updated;
+
+            });
 
         } catch (error) {
 
             console.error(
-                "Delete error:",
+                "Delete post error:",
                 error
+            );
+
+            setError(
+                error.response?.data?.message ||
+                "Unable to delete post."
             );
 
         }
@@ -270,153 +309,325 @@ function Community() {
     };
 
 
-    const currentUser =
-        JSON.parse(
-            localStorage.getItem("user") || "{}"
+    /* LOAD COMMENTS */
+
+    const loadComments = async (postId) => {
+
+        try {
+
+            const config =
+                getAuthConfig();
+
+            if (!config) {
+                return;
+            }
+
+            setCommentLoading((previous) => ({
+                ...previous,
+                [postId]: true
+            }));
+
+            const response =
+                await api.get(
+                    `/community/${postId}/comments`,
+                    config
+                );
+
+            setComments((previous) => ({
+                ...previous,
+                [postId]:
+                    response.data.comments || []
+            }));
+
+        } catch (error) {
+
+            console.error(
+                "Load comments error:",
+                error
+            );
+
+            setError(
+                error.response?.data?.message ||
+                "Unable to load comments."
+            );
+
+        } finally {
+
+            setCommentLoading((previous) => ({
+                ...previous,
+                [postId]: false
+            }));
+
+        }
+
+    };
+
+
+    /* COMMENT INPUT */
+
+    const handleCommentInput = (
+        postId,
+        value
+    ) => {
+
+        setCommentInputs((previous) => ({
+            ...previous,
+            [postId]: value
+        }));
+
+    };
+
+
+    /* ADD COMMENT */
+
+    const handleAddComment = async (postId) => {
+
+        const commentText =
+            commentInputs[postId]?.trim();
+
+        if (!commentText) {
+            return;
+        }
+
+        try {
+
+            const config =
+                getAuthConfig();
+
+            if (!config) {
+                return;
+            }
+
+            setCommentCreating((previous) => ({
+                ...previous,
+                [postId]: true
+            }));
+
+            const response =
+                await api.post(
+                    `/community/${postId}/comments`,
+                    {
+                        content: commentText
+                    },
+                    config
+                );
+
+            setComments((previous) => ({
+                ...previous,
+                [postId]: [
+                    ...(previous[postId] || []),
+                    response.data.comment
+                ]
+            }));
+
+            setCommentInputs((previous) => ({
+                ...previous,
+                [postId]: ""
+            }));
+
+        } catch (error) {
+
+            console.error(
+                "Add comment error:",
+                error
+            );
+
+            setError(
+                error.response?.data?.message ||
+                "Unable to add comment."
+            );
+
+        } finally {
+
+            setCommentCreating((previous) => ({
+                ...previous,
+                [postId]: false
+            }));
+
+        }
+
+    };
+
+
+    /* DELETE COMMENT */
+
+    const handleDeleteComment = async (
+        postId,
+        commentId
+    ) => {
+
+        const confirmed =
+            window.confirm(
+                "Delete this comment?"
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            const config =
+                getAuthConfig();
+
+            if (!config) {
+                return;
+            }
+
+            await api.delete(
+                `/community/comments/${commentId}`,
+                config
+            );
+
+            setComments((previous) => ({
+                ...previous,
+                [postId]:
+                    (previous[postId] || []).filter(
+                        (comment) =>
+                            comment._id !== commentId
+                    )
+            }));
+
+        } catch (error) {
+
+            console.error(
+                "Delete comment error:",
+                error
+            );
+
+            setError(
+                error.response?.data?.message ||
+                "Unable to delete comment."
+            );
+
+        }
+
+    };
+
+
+    /* CHECK LIKE */
+
+    const isLiked = (post) => {
+
+        if (!currentUser || !post.likes) {
+            return false;
+        }
+
+        return post.likes.some(
+            (id) =>
+                id === currentUser.id ||
+                id?._id === currentUser.id
         );
 
-
-    if (loading) {
-
-        return (
-            <div className="community-loading">
-                Loading Community...
-            </div>
-        );
-
-    }
+    };
 
 
     return (
 
         <div className="community-page">
 
+            <nav className="community-navbar">
 
-            {/* NAVBAR */}
-
-            <nav className="community-nav">
-
-                <div className="community-nav-inner">
-
-                    <div
-                        className="community-logo"
-                        onClick={() =>
-                            navigate("/dashboard")
-                        }
-                    >
-
-                        <div className="community-logo-icon">
-                            R
-                        </div>
-
-                        <span>
-                            RankUp
-                        </span>
-
-                    </div>
-
-
-                    <button
-                        className="community-back"
-                        onClick={() =>
-                            navigate("/dashboard")
-                        }
-                    >
-                        ← Dashboard
-                    </button>
-
+                <div
+                    className="community-logo"
+                    onClick={() =>
+                        navigate("/dashboard")
+                    }
+                >
+                    Rank<span>Up</span>
                 </div>
+
+                <button
+                    className="community-back"
+                    onClick={() =>
+                        navigate("/dashboard")
+                    }
+                >
+                    ← Dashboard
+                </button>
 
             </nav>
 
 
+            <section className="community-hero">
 
-            {/* MAIN */}
+                <p className="community-label">
+                    COMMUNITY HUB
+                </p>
 
-            <main className="community-main">
+                <h1>
+                    Discuss. Share. Improve.
+                </h1>
 
+                <p>
+                    Connect with competitive
+                    programmers, share ideas and
+                    discuss problems.
+                </p>
 
-                {/* HEADER */}
-
-                <section className="community-hero">
-
-                    <div className="community-label">
-                        RANKUP COMMUNITY
-                    </div>
-
-                    <h1>
-                        Discuss. Share.{" "}
-                        <span>Improve.</span>
-                    </h1>
-
-                    <p>
-                        Share ideas, discuss problems,
-                        exchange competitive programming
-                        strategies and learn together.
-                    </p>
-
-                </section>
+            </section>
 
 
+            <main className="community-container">
 
                 {/* CREATE POST */}
 
                 <section className="create-post-card">
 
-                    <h2>
-                        Start a Discussion
-                    </h2>
+                    <div className="section-heading">
+
+                        <div>
+
+                            <p className="community-label">
+                                START A DISCUSSION
+                            </p>
+
+                            <h2>
+                                Create a Post
+                            </h2>
+
+                        </div>
+
+                    </div>
+
 
                     <form
-                        onSubmit={
-                            handleCreatePost
-                        }
+                        onSubmit={handleCreatePost}
+                        className="create-post-form"
                     >
 
                         <input
                             type="text"
                             placeholder="Discussion title"
                             value={title}
-                            onChange={(e) =>
+                            onChange={(event) =>
                                 setTitle(
-                                    e.target.value
+                                    event.target.value
                                 )
                             }
-                            maxLength={150}
                         />
-
 
                         <textarea
-                            placeholder="What do you want to discuss?"
+                            placeholder="Share your thoughts, solution, or question..."
                             value={content}
-                            onChange={(e) =>
+                            onChange={(event) =>
                                 setContent(
-                                    e.target.value
+                                    event.target.value
                                 )
                             }
-                            rows={5}
-                            maxLength={5000}
+                            rows="5"
                         />
-
 
                         <input
                             type="text"
-                            placeholder="Tags (comma separated)"
+                            placeholder="Tags (example: dp, graphs, c++)"
                             value={tags}
-                            onChange={(e) =>
+                            onChange={(event) =>
                                 setTags(
-                                    e.target.value
+                                    event.target.value
                                 )
                             }
                         />
-
-
-                        {error && (
-                            <div className="community-error">
-                                {error}
-                            </div>
-                        )}
-
 
                         <button
                             type="submit"
@@ -432,16 +643,40 @@ function Community() {
                 </section>
 
 
+                {error && (
 
-                {/* FEED */}
+                    <div className="community-error">
+
+                        {error}
+
+                        <button
+                            onClick={() =>
+                                setError("")
+                            }
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+                )}
+
 
                 <section className="community-feed">
 
                     <div className="feed-header">
 
-                        <h2>
-                            Community Discussions
-                        </h2>
+                        <div>
+
+                            <p className="community-label">
+                                LATEST DISCUSSIONS
+                            </p>
+
+                            <h2>
+                                Community Feed
+                            </h2>
+
+                        </div>
 
                         <span>
                             {posts.length} posts
@@ -450,30 +685,45 @@ function Community() {
                     </div>
 
 
-                    {posts.length === 0 ? (
+                    {loading && (
 
-                        <div className="empty-community">
-                            No discussions yet. Be the first
-                            to start one!
+                        <div className="community-state">
+
+                            <div className="loader"></div>
+
+                            <p>
+                                Loading discussions...
+                            </p>
+
                         </div>
 
-                    ) : (
+                    )}
 
+
+                    {!loading &&
+                        posts.length === 0 && (
+
+                            <div className="community-state">
+
+                                <h3>
+                                    No discussions yet
+                                </h3>
+
+                                <p>
+                                    Be the first to start
+                                    a conversation.
+                                </p>
+
+                            </div>
+
+                        )}
+
+
+                    {!loading &&
                         posts.map((post) => {
 
-                            const liked =
-                                (post.likes || [])
-                                    .some(
-                                        (id) =>
-                                            id ===
-                                            currentUser.id
-                                    );
-
-
-                            const isOwner =
-                                post.author?._id ===
-                                currentUser.id;
-
+                            const postComments =
+                                comments[post._id] || [];
 
                             return (
 
@@ -482,61 +732,45 @@ function Community() {
                                     key={post._id}
                                 >
 
-                                    <div className="post-top">
+                                    <div className="post-author">
 
-                                        <div className="post-author">
+                                        <div className="author-avatar">
 
-                                            <div className="post-avatar">
-                                                {post.author?.username
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() ||
-                                                    "U"}
-                                            </div>
-
-                                            <div>
-
-                                                <strong>
-                                                    {post.author?.username ||
-                                                        "Unknown User"}
-                                                </strong>
-
-                                                <span>
-                                                    {new Date(
-                                                        post.createdAt
-                                                    ).toLocaleString()}
-                                                </span>
-
-                                            </div>
+                                            {post.author?.username
+                                                ?.charAt(0)
+                                                ?.toUpperCase()}
 
                                         </div>
 
+                                        <div>
 
-                                        {isOwner && (
+                                            <strong>
+                                                {post.author?.username ||
+                                                    "Unknown user"}
+                                            </strong>
 
-                                            <button
-                                                className="delete-post"
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        post._id
-                                                    )
-                                                }
-                                            >
-                                                Delete
-                                            </button>
+                                            <span>
+                                                {new Date(
+                                                    post.createdAt
+                                                ).toLocaleString()}
+                                            </span>
 
-                                        )}
+                                        </div>
 
                                     </div>
 
 
-                                    <h3>
-                                        {post.title}
-                                    </h3>
+                                    <div className="post-content">
 
+                                        <h3>
+                                            {post.title}
+                                        </h3>
 
-                                    <p className="post-content">
-                                        {post.content}
-                                    </p>
+                                        <p>
+                                            {post.content}
+                                        </p>
+
+                                    </div>
 
 
                                     {post.tags?.length > 0 && (
@@ -547,7 +781,7 @@ function Community() {
                                                 (tag, index) => (
 
                                                     <span
-                                                        key={index}
+                                                        key={`${post._id}-${index}`}
                                                     >
                                                         #{tag}
                                                     </span>
@@ -564,9 +798,9 @@ function Community() {
 
                                         <button
                                             className={
-                                                liked
-                                                    ? "like-button liked"
-                                                    : "like-button"
+                                                isLiked(post)
+                                                    ? "liked"
+                                                    : ""
                                             }
                                             onClick={() =>
                                                 handleLike(
@@ -574,17 +808,181 @@ function Community() {
                                                 )
                                             }
                                         >
-
-                                            {liked
+                                            {isLiked(post)
                                                 ? "♥"
-                                                : "♡"}
-
-                                            {" "}
-
-                                            {post.likes?.length ||
-                                                0}
-
+                                                : "♡"}{" "}
+                                            {post.likes?.length || 0}
                                         </button>
+
+
+                                        <button
+                                            onClick={() =>
+                                                loadComments(
+                                                    post._id
+                                                )
+                                            }
+                                        >
+                                            💬 Comments
+                                        </button>
+
+
+                                        {currentUser &&
+                                            post.author?._id ===
+                                                currentUser.id && (
+
+                                                <button
+                                                    className="delete-post"
+                                                    onClick={() =>
+                                                        handleDeletePost(
+                                                            post._id
+                                                        )
+                                                    }
+                                                >
+                                                    Delete
+                                                </button>
+
+                                            )}
+
+                                    </div>
+
+
+                                    <div className="comments-section">
+
+                                        <div className="comment-input-row">
+
+                                            <input
+                                                type="text"
+                                                placeholder="Write a comment..."
+                                                value={
+                                                    commentInputs[
+                                                        post._id
+                                                    ] || ""
+                                                }
+                                                onChange={(event) =>
+                                                    handleCommentInput(
+                                                        post._id,
+                                                        event.target.value
+                                                    )
+                                                }
+                                                onKeyDown={(event) => {
+
+                                                    if (
+                                                        event.key ===
+                                                        "Enter"
+                                                    ) {
+
+                                                        handleAddComment(
+                                                            post._id
+                                                        );
+
+                                                    }
+
+                                                }}
+                                            />
+
+                                            <button
+                                                onClick={() =>
+                                                    handleAddComment(
+                                                        post._id
+                                                    )
+                                                }
+                                                disabled={
+                                                    commentCreating[
+                                                        post._id
+                                                    ]
+                                                }
+                                            >
+                                                {commentCreating[
+                                                    post._id
+                                                ]
+                                                    ? "..."
+                                                    : "Post"}
+                                            </button>
+
+                                        </div>
+
+
+                                        {commentLoading[
+                                            post._id
+                                        ] && (
+
+                                            <p className="comments-loading">
+                                                Loading comments...
+                                            </p>
+
+                                        )}
+
+
+                                        {!commentLoading[
+                                            post._id
+                                        ] &&
+                                            postComments.map(
+                                                (comment) => (
+
+                                                    <div
+                                                        className="comment"
+                                                        key={
+                                                            comment._id
+                                                        }
+                                                    >
+
+                                                        <div className="comment-avatar">
+                                                            {comment.author?.username
+                                                                ?.charAt(0)
+                                                                ?.toUpperCase()}
+                                                        </div>
+
+                                                        <div className="comment-body">
+
+                                                            <div className="comment-header">
+
+                                                                <strong>
+                                                                    {
+                                                                        comment
+                                                                            .author
+                                                                            ?.username
+                                                                    }
+                                                                </strong>
+
+                                                                <span>
+                                                                    {new Date(
+                                                                        comment.createdAt
+                                                                    ).toLocaleString()}
+                                                                </span>
+
+                                                            </div>
+
+                                                            <p>
+                                                                {
+                                                                    comment.content
+                                                                }
+                                                            </p>
+
+                                                        </div>
+
+
+                                                        {currentUser &&
+                                                            comment.author?._id ===
+                                                                currentUser.id && (
+
+                                                                <button
+                                                                    className="delete-comment"
+                                                                    onClick={() =>
+                                                                        handleDeleteComment(
+                                                                            post._id,
+                                                                            comment._id
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    ×
+                                                                </button>
+
+                                                            )}
+
+                                                    </div>
+
+                                                )
+                                            )}
 
                                     </div>
 
@@ -592,12 +990,9 @@ function Community() {
 
                             );
 
-                        })
-
-                    )}
+                        })}
 
                 </section>
-
 
             </main>
 
@@ -606,6 +1001,5 @@ function Community() {
     );
 
 }
-
 
 export default Community;
