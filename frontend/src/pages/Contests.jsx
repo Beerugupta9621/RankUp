@@ -75,11 +75,6 @@ function Contests() {
                     error
                 );
 
-                console.error(
-                    "Contest response:",
-                    error.response?.data
-                );
-
                 setError(
                     error.response?.data?.message ||
                     "Unable to load Codeforces contests."
@@ -90,6 +85,7 @@ function Contests() {
                 setLoading(false);
 
             }
+
         };
 
         fetchContests();
@@ -97,7 +93,7 @@ function Contests() {
     }, []);
 
 
-    /* CONTEST DATE */
+    /* FORMAT DATE */
     const getContestDate = (timestamp) => {
 
         if (!timestamp) {
@@ -145,7 +141,6 @@ function Contests() {
         const seconds =
             difference % 60;
 
-
         if (days > 0) {
 
             return `${days}d ${hours}h ${minutes}m`;
@@ -153,6 +148,25 @@ function Contests() {
         }
 
         return `${hours}h ${minutes}m ${seconds}s`;
+
+    };
+
+
+    /* CONTEST STATUS */
+    const getContestStatus = (timestamp) => {
+
+        const difference =
+            timestamp - currentTime;
+
+        if (difference <= 0) {
+            return "STARTING";
+        }
+
+        if (difference <= 60 * 60) {
+            return "STARTING SOON";
+        }
+
+        return "UPCOMING";
 
     };
 
@@ -302,70 +316,93 @@ function Contests() {
 
                         <div className="contest-list">
 
-                            {contests.map((contest) => (
+                            {contests.map((contest) => {
 
-                                <div
-                                    className="contest-card"
-                                    key={contest.id}
-                                >
+                                const status =
+                                    getContestStatus(
+                                        contest.startTimeSeconds
+                                    );
 
-                                    <div className="contest-info">
+                                return (
 
-                                        <span className="contest-type">
-                                            {contest.type || "CONTEST"}
-                                        </span>
+                                    <div
+                                        className="contest-card"
+                                        key={contest.id}
+                                    >
 
-                                        <h3>
-                                            {contest.name}
-                                        </h3>
+                                        <div className="contest-info">
 
-                                        <div className="contest-date">
+                                            <div className="contest-top-row">
+
+                                                <span className="contest-type">
+                                                    {contest.type || "CONTEST"}
+                                                </span>
+
+                                                <span
+                                                    className={`contest-status ${
+                                                        status === "STARTING SOON"
+                                                            ? "starting-soon"
+                                                            : ""
+                                                    }`}
+                                                >
+                                                    {status}
+                                                </span>
+
+                                            </div>
+
+                                            <h3>
+                                                {contest.name}
+                                            </h3>
+
+                                            <div className="contest-date">
+
+                                                <small>
+                                                    STARTS
+                                                </small>
+
+                                                <strong>
+                                                    {getContestDate(
+                                                        contest.startTimeSeconds
+                                                    )}
+                                                </strong>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div className="contest-countdown">
 
                                             <small>
-                                                STARTS
+                                                STARTS IN
                                             </small>
 
                                             <strong>
-                                                {getContestDate(
+                                                {getCountdown(
                                                     contest.startTimeSeconds
                                                 )}
                                             </strong>
 
                                         </div>
 
-                                    </div>
 
+                                        <div className="contest-action">
 
-                                    <div className="contest-countdown">
+                                            <a
+                                                href="https://codeforces.com/contests"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                Join on Codeforces →
+                                            </a>
 
-                                        <small>
-                                            STARTS IN
-                                        </small>
-
-                                        <strong>
-                                            {getCountdown(
-                                                contest.startTimeSeconds
-                                            )}
-                                        </strong>
+                                        </div>
 
                                     </div>
 
+                                );
 
-                                    <div className="contest-action">
-
-                                        <a
-                                            href="https://codeforces.com/contests"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            View Contest →
-                                        </a>
-
-                                    </div>
-
-                                </div>
-
-                            ))}
+                            })}
 
                         </div>
 
